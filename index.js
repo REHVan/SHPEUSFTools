@@ -66,41 +66,38 @@ app.post('/register', async (req, res) => {
 
   try {
     const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+    console.log("Checking for existing user...");
 
     if (checkResult.rows.length > 0) {
-      res.send("YOU ALREADY HAVE AN ACCOUNT");
-    } else {
-      bcrypt.hash(password, saltRounds, async (err, hash) => {
-        if (err) {
-          console.error("Error hashing password:", err);
-        } else {
-          const result = await db.query(
-            "INSERT INTO users (firstname, lastname, orgname, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-            [fName, lName, orgName, email, hash]
-          );
-          const user = result.rows[0];
-          req.login(user, async (err) => {
-            const userSecurityDefault = await db.query(`
-              DO $$
-              DECLARE
-                  newUserId INT := $1;
-                  admin_group_id INT;
-              BEGIN
-                  -- Find Admin Group
-                  SELECT id INTO admin_group_id FROM "Group" WHERE name = 'Admin';
-  
-                  -- Assign New User to Admin Group
-                  INSERT INTO UserGroup (user_id, group_id)
-                  VALUES (newUserId, admin_group_id);
-              END $$;
-          `, [user.Id]);
-            res.redirect("/profile");
-          });
-        }
-      });
+      console.log("User already exists.");
+      return res.status(409).send("YOU ALREADY HAVE AN ACCOUNT");
     }
+
+    console.log("Hashing password...");
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    console.log("Inserting new user into the database...");
+    const result = await db.query(
+      "INSERT INTO users (firstname, lastname, orgname, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [fName, lName, orgName, email, hashedPassword]
+    );
+
+    const user = result.rows[0];
+    console.log("User created successfully:", user);
+
+    // Log the user in after registration
+    req.login(user, (err) => {
+      if (err) {
+        console.error("Error logging in after registration:", err);
+        return res.status(500).send('Error logging in after registration');
+      }
+
+      // Redirect to the profile page after successful registration
+      return res.redirect('/profile'); // Change made here
+    });
   } catch (err) {
-    console.log(err);
+    console.error("Error during registration:", err);
+    res.status(500).send('Internal Server Error');
   }
 });
 
@@ -109,59 +106,72 @@ app.post('/formSubmit', async (req, res) => {
   const details = req.body;
 
   try {
+    console.log("Test 1");
     const categoryResult = await db.query(
       "INSERT INTO usercategory (user_id, category) VALUES ($1, 'SurveyInfo') RETURNING id",
       [userId]
     );
     const categoryId = categoryResult.rows[0].id;
+    console.log("Test 2");
 
     const detailEntries = Object.entries(details);
     for (const [detailName, value] of detailEntries) {
+      console.log("Test 3");
+      console.log(value);
 
-      if(value != "")
-      {
-        if(detailName == "userMentorOrMentee" && value=="mentee")
-          {
-            const userSecurityDefault = await db.query(`
-              DO $$
-              DECLARE
-                  newUserId INT := $1;
-                  groupId INT;
-              BEGIN
-                  SELECT id INTO groupId FROM "Group" WHERE name = 'Mentee';
-  
-                  -- Assign New User to Admin Group
-                  INSERT INTO UserGroup (user_id, group_id)
-                  VALUES (newUserId, groupId);
-              END $$;
-          `, [userId]);
+      if (value !== "") {
+        console.log(detailName);
+
+        // Mentee Handling
+        if (detailName === "userMentorOrMentee" && value === "mentee") {
+          console.log(userId);
+
+          // Fetch groupId first
+          const groupIdResult = await db.query(`
+            SELECT id FROM "Group" WHERE name = 'Mentee'
+          `);
+
+          if (groupIdResult.rows.length > 0) {
+            const groupId = groupIdResult.rows[0].id;
+
+            // Assign New User to Mentee Group
+            await db.query(`
+              INSERT INTO UserGroup (user_id, group_id)
+              VALUES ($1, $2)
+            `, [userId, groupId]);
+          } else {
+            console.log("Group 'Mentee' not found");
           }
-    
-          if(detailName == "userMentorOrMentee" && value=="mentor")
-            {
-              const userSecurityDefault = await db.query(`
-                DO $$
-                DECLARE
-                    newUserId INT := $1;
-                    groupId INT;
-                BEGIN
-                    -- Find Admin Group
-                    SELECT id INTO groupId FROM "Group" WHERE name = 'Mentor';
-    
-                    -- Assign New User to Admin Group
-                    INSERT INTO UserGroup (user_id, group_id)
-                    VALUES (newUserId, groupId);
-                END $$;
-            `, [userId]); 
-            }
+        }
 
+        // Mentor Handling
+        if (detailName === "userMentorOrMentee" && value === "mentor") {
+          // Fetch groupId first
+          const groupIdResult = await db.query(`
+            SELECT id FROM "Group" WHERE name = 'Mentor'
+          `);
+
+          if (groupIdResult.rows.length > 0) {
+            const groupId = groupIdResult.rows[0].id;
+
+            // Assign New User to Mentor Group
+            await db.query(`
+              INSERT INTO UserGroup (user_id, group_id)
+              VALUES ($1, $2)
+            `, [userId, groupId]);
+          } else {
+            console.log("Group 'Mentor' not found");
+          }
+        }
 
         await db.query(
           "INSERT INTO userdetails (category_id, detail, value) VALUES ($1, $2, $3)",
           [categoryId, detailName, value]
         );
+        console.log("Test 6");
       }
     }
+    console.log("Test 7");
 
     res.redirect("/allProfile");
   } catch (error) {
@@ -169,6 +179,8 @@ app.post('/formSubmit', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+
 
 app.get('/checkIfSubmitedBefore', async (req, res) => {
   const userId = req.user.id;
@@ -186,6 +198,26 @@ app.get('/checkIfSubmitedBefore', async (req, res) => {
     res.json({ submitted: false });
   }
 });
+
+app.get('/checkUserRole', async (req, res) => {
+  if (!req.user) {
+      return res.status(401).json({ error: 'User not authenticated' }); // Handle unauthenticated access
+  }
+
+  const userId = req.user.id;
+
+  const checkUserRole = await db.query(`
+      SELECT users.user_role
+      FROM users
+      WHERE users.id = $1`, [userId]);
+
+  if (checkUserRole.rows.length > 0) {
+      res.json({ userRole: checkUserRole.rows[0].user_role });
+  } else {
+      res.json({ userRole: "Null" });
+  }
+});
+
 
 app.get('/getUserdetails', async (req, res) => {
   try {
@@ -297,12 +329,13 @@ app.post('/send_email_external', async (req, res) => {
   });
 
   try {
+    let emailSentCount = 0; // Counter for sent emails
+
     for (const contactId of selectedContacts) {
       const contactResult = await db.query('SELECT contact_name, company_name, email_address FROM user_data WHERE id = $1', [contactId]);
       const contact = contactResult.rows[0];
 
       if (contact) {
-        // Replace placeholders in the message and subject
         const personalizedMessage = messageEmail
           .replace(/\[ContactName\]/g, contact.contact_name)
           .replace(/\[CompanyName\]/g, contact.company_name);
@@ -314,22 +347,26 @@ app.post('/send_email_external', async (req, res) => {
         const mailOptions = {
           from: fromEmail,
           to: contact.email_address,
-          cc: ccEmail, 
+          cc: ccEmail,
           subject: personalizedSubject,
           html: personalizedMessage
         };
 
         await transporter.sendMail(mailOptions);
         console.log(`Email sent to ${contact.email_address}`);
+        emailSentCount++; // Increment the counter for each sent email
       }
     }
 
-    res.redirect('/external'); // Redirect after sending emails
+    // Send success response back to the client
+    res.json({ success: true, message: `${emailSentCount} email(s) sent successfully!` });
   } catch (error) {
     console.error('Error sending emails:', error);
-    res.status(500).send('Internal Server Error');
+    // Send an error response if something goes wrong
+    res.status(500).json({ success: false, message: 'Error sending emails. Please try again later.' });
   }
 });
+
 
 app.get('/get_email_templates', async (req, res) => {
   try {
@@ -355,18 +392,113 @@ app.post('/add_email_template', async (req, res) => {
   const { templateName, subject, body } = req.body;
 
   try {
-    console.log(templateName);
-    console.log(subject);
-    console.log(body);
-
     const result = await db.query(
       "INSERT INTO email_templates (template_name, subject, body) VALUES ($1, $2, $3) RETURNING *",
       [templateName, subject, body]
     );
 
-    res.redirect("/template");
+    const newTemplate = result.rows[0]; // Get the newly added template
+    res.status(201).json(newTemplate); // Respond with the new template
   } catch (error) {
     console.error('Error adding email template:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.put('/update_template/:id', async (req, res) => {
+  const { id } = req.params;
+  const { templateName, subject, body } = req.body;
+
+  try {
+    const result = await db.query(
+      "UPDATE email_templates SET template_name = $1, subject = $2, body = $3 WHERE id = $4 RETURNING *",
+      [templateName, subject, body, id]
+    );
+
+    const updatedTemplate = result.rows[0]; // Get the updated template
+    res.status(200).json(updatedTemplate); // Respond with the updated template
+  } catch (error) {
+    console.error('Error updating email template:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.delete('/delete_template/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await db.query('DELETE FROM email_templates WHERE id = $1', [id]);
+    res.status(204).send(); // Send no content response
+  } catch (error) {
+    console.error('Error deleting email template:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Add a new contact
+app.post('/add_contact', async (req, res) => {
+  const { company_name, contact_name, email_address } = req.body;
+
+  try {
+    const result = await db.query(
+      'INSERT INTO user_data (company_name, contact_name, email_address) VALUES ($1, $2, $3) RETURNING *',
+      [company_name, contact_name, email_address]
+    );
+
+    const newContact = result.rows[0]; // Get the newly added contact
+
+    // Respond with the new contact details
+    res.status(201).json(newContact);
+  } catch (error) {
+    console.error('Error adding new contact:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Edit an existing contact
+app.post('/edit_contact/:id', async (req, res) => {
+  const { id } = req.params;
+  const { company_name, contact_name, email_address } = req.body;
+  try {
+    await db.query(
+      'UPDATE user_data SET company_name = $1, company_name = $2, email_address = $3 WHERE id = $4',
+      [company_name, contact_name, email_address, id]
+    );
+    res.redirect('/contactdata');  // Or any other route where you display contacts
+  } catch (error) {
+    console.error('Error editing contact:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Delete a contact
+app.delete('/delete_contact/:id', async (req, res) => {
+  const { id } = req.params;
+  console.log('Deleting contact with ID:', id); // Ensure this logs correctly
+  try {
+    await db.query('DELETE FROM user_data WHERE id = $1', [id]);
+    res.status(200).send('Contact deleted successfully'); // Send a success message or status
+  } catch (error) {
+    console.error('Error deleting contact:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Backend route to update a contact
+app.put('/update_contact/:id', async (req, res) => {
+  const { id } = req.params;
+  const updatedContact = req.body;
+  
+  try {
+    // Update the contact in the database
+    const result = await db.query(
+      `UPDATE user_data SET company_name = $1, contact_name = $2, email_address = $3 WHERE id = $4 RETURNING *`,
+      [updatedContact.company_name, updatedContact.contact_name, updatedContact.email_address, id]
+    );
+    
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating contact:', error);
     res.status(500).send('Internal Server Error');
   }
 });
