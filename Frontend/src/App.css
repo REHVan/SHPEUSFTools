@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply font-sans m-0 p-0 box-border;
+}
+
+/* Form labels */
+label {
+  @apply block mb-2 font-bold;
+}
+
+/* Form inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select {
+  @apply w-full p-2 mb-3 border border-gray-300 rounded;
+}
+
+/* Buttons */
+button {
+  @apply bg-red-600 text-white border-none px-4 py-2 text-lg rounded cursor-pointer;
+}
+
+
+
+button:hover {
+  @apply bg-red-700;
+}
+
+/* Table Styles */
+table {
+  @apply w-full border-collapse my-5;
+}
+
+th, td {
+  @apply border border-gray-300 p-2 text-left;
+}
+
+th {
+  @apply bg-gray-100;
+}
+
+tr:nth-child(even) {
+  @apply bg-gray-50;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  form {
+    @apply p-4;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  select {
+    @apply text-sm;
+  }
+  
+  button {
+    @apply text-sm px-3 py-2;
+  }
+  
+  table {
+    @apply text-sm;
+  }
+}
+/* Optional CSS for specific button styles */
+
+
+.form-container {
+  max-width: 800px; /* Limit the maximum width */
+  margin: 0 auto; /* Center the container */
+  padding: 20px; /* Add padding */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  background-color: #fff; /* White background */
+}
+
+.feedback-message {
+  margin-top: 10px;
+  color: green; /* Change color as needed */
+}
+
+select {
+  width: 100%; /* Full width for select dropdown */
+  padding: 8px; /* Padding for comfort */
+  margin-top: 5px; /* Space above */
+  margin-bottom: 20px; /* Space below */
+  border-radius: 4px; /* Rounded corners */
+  border: 1px solid #ccc; /* Light border */
+}
+
+
+button {
+  display: inline-block; /* Make button inline-block */
+  margin-top: 20px; /* Space above button */
+}
