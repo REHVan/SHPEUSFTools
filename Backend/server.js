@@ -7,6 +7,8 @@ import env from "dotenv";
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import schedule from "node-schedule";
+import multer from 'multer';
+const upload = multer({ storage: multer.memoryStorage() });
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -148,45 +150,46 @@ app.get('/user', isAuthenticated, (req, res) => {
 //   }
 // });
 
-app.post('/send_email_external', async (req, res) => {
-  const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail, selectedContacts } = req.body;
-  const firebaseId = req.session.userId; 
+app.post('/send_email_external', upload.single('attachment'), async (req, res) => {
+  const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail } = req.body;
+  const firebaseId = req.session.userId;
 
-
+  try {
     const userResult = await db.query(
-      'SELECT id FROM "User" WHERE "firebaseid" = $1',
+      'SELECT id, email FROM "User" WHERE "firebaseid" = $1',
       [firebaseId]
     );
 
     const user = userResult.rows[0];
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
     const userEmail = user.email;
 
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: userEmail,
+        pass: googlePassword
+      }
+    });
 
+    console.log(userEmail);
+    console.log(googlePassword)
 
-
-
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: userEmail,
-      pass: googlePassword
-    }
-  });
-
-  const emailResults = [];
-
-  try {
+    const emailResults = [];
     let delayInMs = 0;
 
+    const attachmentBuffer = req.file ? req.file.buffer : null;
+    const attachmentName = req.file ? req.file.originalname : null;
+    const selectedContacts = JSON.parse(req.body.selectedContacts);
     for (let i = 0; i < selectedContacts.length; i++) {
       const contactId = selectedContacts[i];
 
-      const contactResult = await db.query('SELECT name, email, company, position, notes FROM "Contacts" WHERE id = $1', [contactId]);
+      const contactResult = await db.query(
+        'SELECT name, email, company, position, notes FROM "Contacts" WHERE id = $1',
+        [contactId]
+      );
       const contact = contactResult.rows[0];
-
       if (!contact) {
         console.warn(`No contact found for ID ${contactId}`);
         continue;
@@ -206,13 +209,15 @@ app.post('/send_email_external', async (req, res) => {
         cc: ccEmail,
         subject: personalizedSubject,
         html: personalizedMessage,
-        attachments: [{ path: '../USF_SHPE_CorporatePackage_24-25.pdf' }]
+        attachments: attachmentBuffer ? [{
+          filename: attachmentName,
+          content: attachmentBuffer
+        }] : []
       };
 
-      // Schedule batches of 30 per hour
-      const batchIndex = Math.floor(i / 30); // 0 for 0-29, 1 for 30-59, etc.
-      const baseHourDelay = batchIndex * 60 * 60 * 1000; // delay in ms for batches beyond 1st hour
-      const randomDelay = Math.floor(Math.random() * 20000) + 20000; // between 20-40s
+      const batchIndex = Math.floor(i / 30);
+      const baseHourDelay = batchIndex * 60 * 60 * 1000;
+      const randomDelay = Math.floor(Math.random() * 20000) + 20000;
       delayInMs = baseHourDelay + i * randomDelay;
 
       setTimeout(async () => {
@@ -227,13 +232,16 @@ app.post('/send_email_external', async (req, res) => {
       }, delayInMs);
     }
 
-    res.json({ message: 'Emails are being scheduled and will be sent over time.', totalScheduled: selectedContacts.length });
+    res.json({
+      message: 'Emails are being scheduled and will be sent over time.',
+      totalScheduled: selectedContacts.length,
+    });
+
   } catch (error) {
-    console.error('Error scheduling emails:', error);
+    console.error('Error sending emails:', error);
     res.status(500).send('Internal Server Error');
   }
 });
-
 
 
 
