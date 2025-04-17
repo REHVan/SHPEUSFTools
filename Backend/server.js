@@ -253,13 +253,12 @@ app.post('/send_email_external', upload.single('attachment'), async (req, res) =
 
 
 
-app.post('/schedule_email_external', async (req, res) => {
-  const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail, selectedContacts } = req.body;
-  const { scheduledStartTime } = req.body;
+app.post('/schedule_email_external', upload.single('attachment'), async (req, res) => {
+  const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail, selectedContacts, scheduledStartTime } = req.body;
   const startTime = scheduledStartTime ? new Date(scheduledStartTime).getTime() : Date.now();
-  const firebaseId = req.session.userId; 
+  const firebaseId = req.session.userId;
 
-
+  try {
     const userResult = await db.query(
       'SELECT id FROM "User" WHERE "firebaseid" = $1',
       [firebaseId]
@@ -269,21 +268,22 @@ app.post('/schedule_email_external', async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
     const userEmail = user.email;
 
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: userEmail,
+        pass: googlePassword
+      }
+    });
 
+    const emailResults = [];
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: userEmail,
-      pass: googlePassword
-    }
-  });
+    const attachmentBuffer = req.file ? req.file.buffer : null;
+    const attachmentName = req.file ? req.file.originalname : null;
 
-  const emailResults = [];
-
-  try {
     let delayInMs = 0;
 
     for (let i = 0; i < selectedContacts.length; i++) {
@@ -313,7 +313,10 @@ app.post('/schedule_email_external', async (req, res) => {
         cc: ccEmail,
         subject: personalizedSubject,
         html: personalizedMessage,
-        attachments: [{ path: '../USF_SHPE_CorporatePackage_24-25.pdf' }]
+        attachments: attachmentBuffer ? [{
+          filename: attachmentName,
+          content: attachmentBuffer
+        }] : []
       };
 
       const batchIndex = Math.floor(i / 30); // 30 emails per hour
