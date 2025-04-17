@@ -90,7 +90,7 @@ function External() {
       if (response.ok) {
         setFeedbackMessage(scheduleMode
           ? `Scheduled ${responseBody.totalScheduled} emails successfully.`
-          : `Sent ${responseBody.results.filter(r => r.status === 'sent').length} emails successfully at ${new Date().toLocaleTimeString()}`
+          : `Sent ${responseBody.totalScheduled} emails successfully at ${new Date().toLocaleTimeString()}`
         );
         setTimestamp(new Date().toLocaleTimeString());
         setSelectedContacts([]);

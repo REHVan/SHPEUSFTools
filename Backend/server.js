@@ -172,10 +172,7 @@ app.post('/send_email_external', upload.single('attachment'), async (req, res) =
         pass: googlePassword
       }
     });
-
-    console.log(userEmail);
-    console.log(googlePassword)
-
+    
     const emailResults = [];
     let delayInMs = 0;
 
@@ -242,6 +239,7 @@ app.post('/send_email_external', upload.single('attachment'), async (req, res) =
     res.status(500).send('Internal Server Error');
   }
 });
+
 
 
 
