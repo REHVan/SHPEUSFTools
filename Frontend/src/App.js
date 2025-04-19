@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route} from 'react-router-dom'
 import Login from "./pages/login"
 import AdminNavPage from './pages/adminNav'
 import Profile from "./pages/profile"
-import AllProfile from "./pages/allProfile"
 import External from './pages/external'
 import ExternalNav from './pages/externalNav'
 import Template from './pages/template'
@@ -29,7 +28,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/submitted" element={<Submitted />} />
-          <Route path="/allprofile" element={<AllProfile />} />
           <Route path="/internalNav" element={<InternalNav />} />
           <Route path="/external" element={<External />} />
           <Route path="/externalnav" element={<ExternalNav />} />
