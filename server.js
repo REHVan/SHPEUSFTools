@@ -65,6 +65,12 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/client/public/index.html');
 });
 
+
+app.get('/ping', (req, res) => {
+  res.json({ message: 'pong', origin: req.headers.origin });
+});
+
+
 app.post('/login', async (req, res) => {
   const { emailLogin, passwordLogin } = req.body;
   try {
