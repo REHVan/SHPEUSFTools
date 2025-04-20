@@ -12,6 +12,8 @@ import multer from 'multer';
 
 env.config(); // Load .env variables early
 
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://uni-sponsor.vercel.app';
+
 const app = express();
 
 const corsOptions = {
@@ -75,7 +77,7 @@ app.post('/login', async (req, res) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, emailLogin, passwordLogin);
     req.session.userId = userCredential.user.uid; // Store user ID in session
-    res.redirect('/external');
+    res.redirect(`${FRONTEND_URL}/external`);
   } catch (error) {
     res.status(401).json({ message: 'Authentication failed', error: error.message });
   }
@@ -93,7 +95,7 @@ app.post('/register', async (req, res) => {
       [firebaseId, email]
     );
 
-    res.redirect('/external');
+    res.redirect(`${FRONTEND_URL}/external`);
   } catch (error) {
     res.status(500).json({ message: 'Registration failed', error: error.message });
   }
