@@ -8,9 +8,18 @@ import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import schedule from "node-schedule";
 import multer from 'multer';
+import cors from 'cors'
+
 const upload = multer({ storage: multer.memoryStorage() });
 
+
 const app = express();
+
+app.use(cors({ // ✅ Step 1
+  origin: 'https://uni-sponsor.vercel.app',
+  credentials: true
+}));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json()); 
 app.use(express.static('client/public'));
@@ -94,64 +103,6 @@ const isAuthenticated = (req, res, next) => {
 app.get('/user', isAuthenticated, (req, res) => {
   res.json({ userId: req.session.userId });
 });
-
-
-
-// app.post('/send_email_external', async (req, res) => {
-//   const { fromEmail, ccEmail, subjectEmail, messageEmail, selectedContacts } = req.body;
-
-//   const transporter = nodemailer.createTransport({
-//     service: 'gmail',
-//     auth: {
-//       user: process.env.GOOGLE_GMAIL_USER,
-//       pass: process.env.GOOGLE_GMAIL_PASSWORD
-//     }
-//   });
-
-//   const emailResults = []; // Array to store results for each email
-
-//   try {
-//     for (const contactId of selectedContacts) {
-//       const contactResult = await db.query('SELECT name, email, company, position, notes FROM "Contacts" WHERE id = $1', [contactId]);
-//       const contact = contactResult.rows[0];
-//       if (contact) {
-//         // Replace placeholders in the message and subject
-//         const personalizedMessage = messageEmail
-//           .replace(/\[ContactName\]/g, contact.name)
-//           .replace(/\[CompanyName\]/g, contact.company);
-
-//         const personalizedSubject = subjectEmail
-//           .replace(/\[ContactName\]/g, contact.name)
-//           .replace(/\[CompanyName\]/g, contact.company);
-
-//         const mailOptions = {
-//           from: fromEmail,
-//           to: contact.email,
-//           cc: ccEmail,
-//           subject: personalizedSubject,
-//           html: personalizedMessage,
-//           attachments: [{ path: '../USF_SHPE_CorporatePackage_24-25.pdf' }]
-//         };
-
-//         try {
-//           await transporter.sendMail(mailOptions);
-//           console.log(`Email sent to ${contact.email}`);
-//           emailResults.push({ email: contact.email, status: 'sent' });
-//         } catch (error) {
-//           console.error(`Error sending email to ${contact.email_address}:`, error);
-//           emailResults.push({ email: contact.email, status: 'failed', error: error.message });
-//         }
-//       } else {
-//         console.warn(`No contact found for ID ${contactId}`);
-//       }
-//     }
-
-//     res.json({ message: 'Email sending process completed', results: emailResults });
-//   } catch (error) {
-//     console.error('Error processing email sending:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
 
 app.post('/send_email_external', upload.single('attachment'), async (req, res) => {
   const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail } = req.body;
