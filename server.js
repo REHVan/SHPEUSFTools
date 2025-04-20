@@ -13,16 +13,14 @@ import multer from 'multer';
 env.config(); // Load .env variables early
 
 const app = express();
+
 const corsOptions = {
   origin: 'https://uni-sponsor.vercel.app',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
 };
-
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight requests
 
-// Then come the body parsers
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('client/public'));
@@ -38,7 +36,6 @@ app.use(
     }
   })
 );
-
 const upload = multer({ storage: multer.memoryStorage() });
 const db = new pg.Client({
   user: process.env.PG_USER,
