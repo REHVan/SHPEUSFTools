@@ -1,1 +1,1 @@
-web: npm start --prefix Backend
+cd web: npm start --prefix Backend

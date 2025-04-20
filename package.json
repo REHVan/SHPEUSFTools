@@ -1,7 +1,9 @@
 {
-    "name": "root-placeholder",
+    "name": "monorepo-root",
     "private": true,
     "version": "1.0.0",
-    "description": "Monorepo root placeholder"
+    "scripts": {
+      "build": "cd Backend && npm install"
+    }
   }
   
