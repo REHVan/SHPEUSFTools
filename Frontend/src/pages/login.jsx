@@ -15,12 +15,16 @@ function Login() {
     const password = formData.get('password');
 
     try {
+      console.log("Testing1")
+      console.log(process.env.REACT_APP_BACKEND_URL);
+
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
+      console.log("Testing2")
 
       const data = await response.json();
 

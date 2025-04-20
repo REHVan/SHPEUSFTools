@@ -8,25 +8,25 @@ import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import schedule from "node-schedule";
 import multer from 'multer';
-import cors from 'cors'
+import cors from 'cors';
+
+env.config(); // Load env first
 
 const upload = multer({ storage: multer.memoryStorage() });
-
-
 const app = express();
 
 const corsOptions = {
   origin: 'https://uni-sponsor.vercel.app',
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Prefli
 
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json()); 
+app.use(express.json());
 app.use(express.static('client/public'));
-env.config();
-process.env.SESSION_SECRET
 
 app.use(
   session({
@@ -34,8 +34,8 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,
-      sameSite: 'none'
+      secure: true,     
+      sameSite: 'none'  
     }
   })
 );
