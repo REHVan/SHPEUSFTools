@@ -14,21 +14,30 @@ env.config(); // Load .env variables early
 
 const app = express();
 
-// CORS MUST come before all other middleware
+
+const allowedOrigins = ['https://uni-sponsor.vercel.app'];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204); // Preflight success
+  }
+  next();
+});
+
+
 const corsOptions = {
   origin: 'https://uni-sponsor.vercel.app',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 };
-app.use(cors(corsOptions));
-app.use((req, res, next) => {
-  console.log(`Request from ${req.headers.origin}`);
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
-
-app.options('*', cors(corsOptions)); // Handle preflight
 
 // Then come the body parsers
 app.use(bodyParser.urlencoded({ extended: true }));
