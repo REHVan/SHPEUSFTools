@@ -14,32 +14,13 @@ env.config(); // Load .env variables early
 
 const app = express();
 
-
-const allowedOrigins = ['https://uni-sponsor.vercel.app'];
-
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204); // Preflight success
-  }
-  next();
-});
-
-
 const corsOptions = {
   origin: 'https://uni-sponsor.vercel.app',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
 };
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight requests
 
-// Then come the body parsers
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('client/public'));
@@ -55,7 +36,6 @@ app.use(
     }
   })
 );
-
 const upload = multer({ storage: multer.memoryStorage() });
 const db = new pg.Client({
   user: process.env.PG_USER,
@@ -84,6 +64,12 @@ const auth = getAuth(firebaseApp);
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/client/public/index.html');
 });
+
+
+app.get('/ping', (req, res) => {
+  res.json({ message: 'pong', origin: req.headers.origin });
+});
+
 
 app.post('/login', async (req, res) => {
   const { emailLogin, passwordLogin } = req.body;
