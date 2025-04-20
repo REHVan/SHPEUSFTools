@@ -1,7 +1,9 @@
 {
-    "name": "uni-sponsor",
+    "name": "monorepo-root",
+    "private": true,
+    "version": "1.0.0",
     "scripts": {
-      "postdeploy": "cd Backend && npm install && npm run start"
+      "heroku-postbuild": "cd Backend && npm install"
     }
   }
   
