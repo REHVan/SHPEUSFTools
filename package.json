@@ -1,9 +1,11 @@
 {
-    "name": "monorepo-root",
-    "private": true,
+    "name": "uni-sponsor-root",
     "version": "1.0.0",
+    "private": true,
+    "main": "index.js",
     "scripts": {
       "build": "cd Backend && npm install"
-    }
+    },
+    "dependencies": {}
   }
   
