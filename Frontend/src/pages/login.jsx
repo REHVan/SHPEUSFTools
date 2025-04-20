@@ -18,7 +18,7 @@ function Login() {
       console.log("Testing1")
       console.log(process.env.REACT_APP_BACKEND_URL);
 
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/register`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -49,7 +49,7 @@ function Login() {
     const password = formData.get('passwordLogin');
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/login`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
