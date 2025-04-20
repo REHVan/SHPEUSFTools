@@ -68,9 +68,7 @@ function Login() {
   return (
     <div
       className="min-h-screen bg-cover bg-center flex items-center justify-center p-8"
-      style={{
-        backgroundImage: "url('https://media.canva.com/v2/image-resize/format:PNG/height:600/quality:100/uri:ifs%3A%2F%2F%2Fbff61c00-10af-4797-a2e8-e9b557592237/watermark:F/width:800?csig=AAAAAAAAAAAAAAAAAAAAAKtcd_9EDi9tTslmL4HettzcLteZg2aYt2P5c_6auRkm&exp=1740263642&osig=AAAAAAAAAAAAAAAAAAAAAEcqAgESIwYB-ZH_jv6Jg48p21080W9tnGQuxrjH5Jcd&signer=media-rpc&x-canva-quality=screen')",
-      }}
+
     >
       <div className="container mx-auto flex flex-col md:flex-row items-start p-8 rounded-lg shadow-lg mt-16">
         {/* Left Side - About SHPE USF */}
