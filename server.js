@@ -15,10 +15,11 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const app = express();
 
-app.use(cors({ // ✅ Step 1
+app.use(cors({
   origin: 'https://uni-sponsor.vercel.app',
-  credentials: true
+  credentials: true,
 }));
+app.options('*', cors());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json()); 
