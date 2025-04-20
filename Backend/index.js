@@ -77,7 +77,7 @@ app.post('/login', async (req, res) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, emailLogin, passwordLogin);
     req.session.userId = userCredential.user.uid; // Store user ID in session
-    res.redirect(`${FRONTEND_URL}/external`);
+    res.status(200).json({ redirectTo: `${FRONTEND_URL}/external` });
   } catch (error) {
     res.status(401).json({ message: 'Authentication failed', error: error.message });
   }
@@ -95,7 +95,7 @@ app.post('/register', async (req, res) => {
       [firebaseId, email]
     );
 
-    res.redirect(`${FRONTEND_URL}/external`);
+    res.status(200).json({ redirectTo: `${FRONTEND_URL}/external` });
   } catch (error) {
     res.status(500).json({ message: 'Registration failed', error: error.message });
   }

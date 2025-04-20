@@ -15,16 +15,12 @@ function Login() {
     const password = formData.get('password');
 
     try {
-      console.log("Testing1")
-      console.log(process.env.REACT_APP_BACKEND_URL);
-
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
-      console.log("Testing2")
 
       const data = await response.json();
 
@@ -34,7 +30,10 @@ function Login() {
         return;
       }
 
-      alert('Registration successful!');
+      // ✅ Redirect after successful registration
+      if (data.redirectTo) {
+        window.location.href = data.redirectTo;
+      }
     } catch (err) {
       console.error('Network error:', err);
       alert('Something went wrong');
@@ -64,7 +63,10 @@ function Login() {
         return;
       }
 
-      alert('Login successful!');
+      // ✅ Redirect after successful login
+      if (data.redirectTo) {
+        window.location.href = data.redirectTo;
+      }
     } catch (err) {
       console.error('Network error:', err);
       alert('Something went wrong');
@@ -72,10 +74,7 @@ function Login() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-cover bg-center flex items-center justify-center p-8"
-
-    >
+    <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-8">
       <div className="container mx-auto flex flex-col md:flex-row items-start p-8 rounded-lg shadow-lg mt-16">
         {/* Left Side - About SHPE USF */}
         <div className="md:w-1/2 text-center md:text-left p-6">
