@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import pg from 'pg';
 import bodyParser from 'body-parser';
 import session from "express-session";
@@ -8,12 +9,28 @@ import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import schedule from "node-schedule";
 import multer from 'multer';
-import cors from 'cors';
 
-env.config(); // Load env first
+env.config(); // Load .env variables early
 
-const upload = multer({ storage: multer.memoryStorage() });
 const app = express();
+
+
+const allowedOrigins = ['https://uni-sponsor.vercel.app'];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204); // Preflight success
+  }
+  next();
+});
+
 
 const corsOptions = {
   origin: 'https://uni-sponsor.vercel.app',
@@ -22,8 +39,7 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization']
 };
 
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); 
+// Then come the body parsers
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('client/public'));
@@ -34,12 +50,13 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,     
-      sameSite: 'none'  
+      secure: true,
+      sameSite: 'none'
     }
   })
 );
 
+const upload = multer({ storage: multer.memoryStorage() });
 const db = new pg.Client({
   user: process.env.PG_USER,
   host: process.env.PG_HOST,
