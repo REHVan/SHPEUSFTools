@@ -15,11 +15,12 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const app = express();
 
-app.use(cors({
+const corsOptions = {
   origin: 'https://uni-sponsor.vercel.app',
   credentials: true,
-}));
-app.options('*', cors());
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Prefli
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json()); 
@@ -32,7 +33,10 @@ app.use(
     secret: process.env.SESSION_SECRET || 'default_secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // set secure: true if using HTTPS
+    cookie: {
+      secure: true,
+      sameSite: 'none'
+    }
   })
 );
 
