@@ -88,12 +88,13 @@ app.get('/ping', (req, res) => {
 
 app.post('/sessionLogin', async (req, res) => {
   const { idToken } = req.body;
-
+  console.log(idToken)
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const uid = decodedToken.uid;
-
+    console.log(uid);
     req.session.userId = uid;
+    
     req.session.save(() => {
       res.status(200).json({ message: 'Session established' });
     });

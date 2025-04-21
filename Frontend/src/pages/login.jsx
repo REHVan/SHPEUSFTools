@@ -29,7 +29,7 @@ function Login() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const idToken = await userCredential.user.getIdToken();
-
+      window.alert(idToken);
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}sessionLogin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
