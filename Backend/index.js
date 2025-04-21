@@ -10,6 +10,12 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import schedule from 'node-schedule';
 import multer from 'multer';
+import admin from 'firebase-admin';
+import serviceAccount from './firebaseServiceAccount.json'; 
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 env.config(); // Load .env variables early
 
@@ -81,6 +87,23 @@ app.get('/', (req, res) => {
 
 app.get('/ping', (req, res) => {
   res.json({ message: 'pong', origin: req.headers.origin });
+});
+
+app.post('/sessionLogin', async (req, res) => {
+  const { idToken } = req.body;
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+
+    req.session.userId = uid;
+    req.session.save(() => {
+      res.status(200).json({ message: 'Session established' });
+    });
+  } catch (err) {
+    console.error('Failed to verify token:', err);
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
 });
 
 app.post('/login', async (req, res) => {
