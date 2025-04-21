@@ -78,7 +78,6 @@ function Login() {
       <div className="container mx-auto flex flex-col md:flex-row items-start p-8 rounded-lg shadow-lg mt-16">
         {/* Left Side - About SHPE USF */}
         <div className="md:w-1/2 text-center md:text-left p-6">
-          <h2 className="text-6xl font-bold text-red-600">SHPE USF External Team</h2>
         </div>
 
         {/* Right Side - Forms */}

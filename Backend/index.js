@@ -9,6 +9,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import schedule from "node-schedule";
 import multer from 'multer';
+import path from 'path';
 
 env.config(); // Load .env variables early
 
@@ -16,41 +17,53 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://uni-sponsor.vercel.app
 
 const app = express();
 
-const corsOptions = {
-  origin: 'https://uni-sponsor.vercel.app',
+// ------------------ CORS SETUP -------------------
+app.use(cors({
+  origin: FRONTEND_URL,
   credentials: true,
-};
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
+}));
 
+app.options('*', cors({
+  origin: FRONTEND_URL,
+  credentials: true,
+})); // Preflight
+
+// ------------------ PARSERS ----------------------
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static('client/public'));
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'default_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: true,
-      sameSite: 'none'
-    }
-  })
-);
+// ------------------ SESSION SETUP ----------------
+app.set('trust proxy', 1); // Trust Heroku proxy for HTTPS cookies
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'default_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,           // only send cookie over HTTPS
+    httpOnly: true,         // JS can't access cookies
+    sameSite: 'none',       // cross-site allowed (Heroku <-> Vercel)
+  }
+}));
+
+// ------------------ STATIC FILES -----------------
+app.use(express.static(path.join(__dirname, 'client/public')));
+
+// ------------------ FILE UPLOAD ------------------
 const upload = multer({ storage: multer.memoryStorage() });
+
+// ------------------ POSTGRES DB ------------------
 const db = new pg.Client({
   user: process.env.PG_USER,
   host: process.env.PG_HOST,
   database: process.env.PG_DATABASE,
   password: process.env.PG_PASSWORD,
   port: process.env.PG_PORT,
-  ssl: {
-    rejectUnauthorized: false, // Required for Heroku/RDS
-  },
+  ssl: { rejectUnauthorized: false },
 });
 db.connect();
 
+// ------------------ FIREBASE SETUP ----------------
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN,
@@ -63,10 +76,10 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 
+// ------------------ ROUTES -----------------------
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/client/public/index.html');
+  res.sendFile(path.join(__dirname, 'client/public/index.html'));
 });
-
 
 app.get('/ping', (req, res) => {
   res.json({ message: 'pong', origin: req.headers.origin });
@@ -76,9 +89,11 @@ app.post('/login', async (req, res) => {
   const { emailLogin, passwordLogin } = req.body;
   try {
     const userCredential = await signInWithEmailAndPassword(auth, emailLogin, passwordLogin);
-    req.session.userId = userCredential.user.uid; // Store user ID in session
+    req.session.userId = userCredential.user.uid;
+    console.log('[SESSION SET]', req.session); // debug
     res.status(200).json({ redirectTo: `${FRONTEND_URL}/external` });
   } catch (error) {
+    console.error('[LOGIN ERROR]', error);
     res.status(401).json({ message: 'Authentication failed', error: error.message });
   }
 });
@@ -95,8 +110,10 @@ app.post('/register', async (req, res) => {
       [firebaseId, email]
     );
 
+    console.log('[USER REGISTERED]', email, firebaseId);
     res.status(200).json({ redirectTo: `${FRONTEND_URL}/external` });
   } catch (error) {
+    console.error('[REGISTER ERROR]', error);
     res.status(500).json({ message: 'Registration failed', error: error.message });
   }
 });
@@ -546,6 +563,7 @@ app.get('/get_contacts', async (req, res) => {
   const firebaseId = req.session.userId; 
   try {
 
+    
     const userResult = await db.query(
       'SELECT id FROM "User" WHERE "firebaseid" = $1',
       [firebaseId]
