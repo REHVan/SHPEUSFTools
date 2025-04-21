@@ -37,6 +37,11 @@ function Login() {
         body: JSON.stringify({ idToken }),
       });
 
+      const checkSession = await fetch(`${process.env.REACT_APP_BACKEND_URL}debug-session`, {
+        credentials: 'include',
+      });
+      console.log(await checkSession.json());
+
       const data = await response.json();
 
       if (!response.ok) {

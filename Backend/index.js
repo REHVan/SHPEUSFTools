@@ -47,7 +47,7 @@ const auth = getAuth(firebaseApp);
 
 // CORS must be set up BEFORE session
 const corsOptions = {
-  origin: FRONTEND_URL,
+  origin: 'https://uni-sponsor.vercel.app',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -88,16 +88,23 @@ app.get('/ping', (req, res) => {
 
 app.post('/sessionLogin', async (req, res) => {
   const { idToken } = req.body;
+  console.log("SESSIONLOGIN");
   console.log(idToken)
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const uid = decodedToken.uid;
     console.log(uid);
     req.session.userId = uid;
-    
-    req.session.save(() => {
+
+    req.session.save((err) => {
+      if (err) {
+        console.error('SESSION SAVE ERROR:', err);
+        return res.status(500).json({ message: 'Session failed to save' });
+      }
+      console.log('✅ Session saved successfully!');
       res.status(200).json({ message: 'Session established' });
     });
+
   } catch (err) {
     console.error('Failed to verify token:', err);
     res.status(401).json({ error: 'Invalid or expired token' });
