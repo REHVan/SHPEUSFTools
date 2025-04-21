@@ -23,12 +23,12 @@ function External() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/get_contacts')
+    fetch(`${process.env.REACT_APP_BACKEND_URL}get_contacts`)
       .then(response => response.json())
       .then(data => setContacts(data))
       .catch(error => console.error('Error fetching contacts:', error));
 
-    fetch('/get_email_templates')
+    fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates`)
       .then(response => response.json())
       .then(data => setTemplates(data))
       .catch(error => console.error('Error fetching templates:', error));
@@ -63,7 +63,7 @@ function External() {
   const sendEmail = async (e) => {
     e.preventDefault();
 
-    const endpoint = scheduleMode ? '/schedule_email_external' : '/send_email_external';
+    const endpoint = scheduleMode ? `${process.env.REACT_APP_BACKEND_URL}schedule_email_external` : `${process.env.REACT_APP_BACKEND_URL}send_email_external`;
 
     try {
       console.log(selectedContacts);
