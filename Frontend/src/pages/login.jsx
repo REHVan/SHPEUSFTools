@@ -50,7 +50,7 @@ function Login() {
       }
       console.log(`${process.env.REACT_APP_FRONTEND_URL}`);
       window.alert("hold");
-      window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/external`;
+     // window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/external`;
     } catch (err) {
       console.error('Registration error:', err);
       alert('Failed to register');
@@ -81,7 +81,7 @@ function Login() {
         return;
       }
 
-      window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/external`;
+     // window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/external`;
     } catch (err) {
       console.error('Login error:', err);
       alert('Login failed');

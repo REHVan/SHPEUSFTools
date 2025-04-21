@@ -89,22 +89,24 @@ app.get('/ping', (req, res) => {
 app.post('/sessionLogin', async (req, res) => {
   const { idToken } = req.body;
   console.log("SESSIONLOGIN");
-  console.log(idToken)
+  console.log(idToken);
+
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const uid = decodedToken.uid;
-    console.log(uid);
+    console.log("Decoded UID:", uid);
+
     req.session.userId = uid;
 
     req.session.save((err) => {
       if (err) {
-        console.error('SESSION SAVE ERROR:', err);
-        return res.status(500).json({ message: 'Session failed to save' });
+        console.error("❌ SESSION SAVE ERROR:", err); // <-- this will tell us the issue
+        return res.status(500).json({ message: 'Session failed to save', error: err.message });
       }
-      console.log('✅ Session saved successfully!');
+
+      console.log("✅ Session saved for:", req.session.userId);
       res.status(200).json({ message: 'Session established' });
     });
-
   } catch (err) {
     console.error('Failed to verify token:', err);
     res.status(401).json({ error: 'Invalid or expired token' });
