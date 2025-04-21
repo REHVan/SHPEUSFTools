@@ -20,7 +20,7 @@ function Login() {
   const [isRegistering, setIsRegistering] = useState(true);
 
   const sendTokenToBackend = async (idToken) => {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/sessionLogin`, {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}sessionLogin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -43,7 +43,7 @@ function Login() {
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
       const idToken = await user.getIdToken();
       await sendTokenToBackend(idToken);
-      window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/external`;
+      window.location.href = `${process.env.REACT_APP_FRONTEND_URL}external`;
     } catch (err) {
       console.error('Registration error:', err);
       alert('Failed to register');
@@ -60,7 +60,7 @@ function Login() {
       const { user } = await signInWithEmailAndPassword(auth, email, password);
       const idToken = await user.getIdToken();
       await sendTokenToBackend(idToken);
-      window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/external`;
+      window.location.href = `${process.env.REACT_APP_FRONTEND_URL}external`;
     } catch (err) {
       console.error('Login error:', err);
       alert('Login failed');
