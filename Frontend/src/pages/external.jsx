@@ -23,13 +23,15 @@ function External() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}get_contacts`)
-      .then(response => response.json())
-      .then(data => setContacts(data))
-      .catch(error => console.error('Error fetching contacts:', error));
+    fetch(`${process.env.REACT_APP_BACKEND_URL}get_contacts`, {
+      credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => setContacts(data))
+    .catch(error => console.error('Error fetching contacts:', error));
 
-    fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates`)
-      .then(response => response.json())
+  fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates`)
+    .then(response => response.json())
       .then(data => setTemplates(data))
       .catch(error => console.error('Error fetching templates:', error));
   }, []);
@@ -66,7 +68,6 @@ function External() {
     const endpoint = scheduleMode ? `${process.env.REACT_APP_BACKEND_URL}schedule_email_external` : `${process.env.REACT_APP_BACKEND_URL}send_email_external`;
 
     try {
-      console.log(selectedContacts);
       const formData = new FormData();
       formData.append('googlePassword', ggPassword);
       formData.append('ccEmail', ccEmail);
@@ -82,21 +83,18 @@ function External() {
 
       const response = await fetch(endpoint, {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'include'
       });
 
       const responseBody = await response.json();
 
-      if (response.ok) {
-        setFeedbackMessage(scheduleMode
-          ? `Scheduled ${responseBody.totalScheduled} emails successfully.`
-          : `Sent ${responseBody.totalScheduled} emails successfully at ${new Date().toLocaleTimeString()}`
-        );
-        setTimestamp(new Date().toLocaleTimeString());
-        setSelectedContacts([]);
-      } else {
-        setFeedbackMessage(responseBody.message || "Failed to send emails.");
-      }
+      setFeedbackMessage(scheduleMode
+        ? `Scheduled ${responseBody.totalScheduled} emails successfully.`
+        : `Sent ${responseBody.totalScheduled} emails successfully at ${new Date().toLocaleTimeString()}`
+      );
+      setTimestamp(new Date().toLocaleTimeString());
+      setSelectedContacts([]);
     } catch (error) {
       console.error('Error sending email:', error);
       setFeedbackMessage('Error sending emails. Please try again.');
