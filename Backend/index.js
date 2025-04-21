@@ -11,11 +11,15 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } f
 import schedule from 'node-schedule';
 import multer from 'multer';
 import admin from 'firebase-admin';
-import serviceAccount from './firebaseServiceAccount.json'; 
+
+const serviceAccountBuffer = Buffer.from(process.env.FIREBASE_ADMIN_KEY_BASE64, 'base64');
+const serviceAccount = JSON.parse(serviceAccountBuffer.toString('utf-8'));
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
+
+
 
 env.config(); // Load .env variables early
 
