@@ -43,7 +43,7 @@ function Login() {
         alert(data.message || 'Failed to establish session');
         return;
       }
-
+      window.alert("hold");
       window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/external`;
     } catch (err) {
       console.error('Registration error:', err);
