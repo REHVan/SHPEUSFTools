@@ -26,12 +26,28 @@ function External() {
     fetch(`${process.env.REACT_APP_BACKEND_URL}get_contacts`, {
       credentials: 'include'
     })
-    .then(response => response.json())
-    .then(data => setContacts(data))
-    .catch(error => console.error('Error fetching contacts:', error));
+      .then(async response => {
+        const contentType = response.headers.get('content-type');
+        if (!response.ok || !contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          throw new Error(`Expected JSON but got: ${text}`);
+        }
+        return response.json();
+      })
+      .then(data => setContacts(data))
+      .catch(error => console.error('Error fetching contacts:', error));
 
-  fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates`)
-    .then(response => response.json())
+    fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates`, {
+      credentials: 'include'
+    })
+      .then(async response => {
+        const contentType = response.headers.get('content-type');
+        if (!response.ok || !contentType || !contentType.includes('application/json')) {
+          const text = await response.text();
+          throw new Error(`Expected JSON but got: ${text}`);
+        }
+        return response.json();
+      })
       .then(data => setTemplates(data))
       .catch(error => console.error('Error fetching templates:', error));
   }, []);
@@ -86,6 +102,12 @@ function External() {
         body: formData,
         credentials: 'include'
       });
+
+      const contentType = response.headers.get('content-type');
+      if (!response.ok || !contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Unexpected response: ${text}`);
+      }
 
       const responseBody = await response.json();
 
