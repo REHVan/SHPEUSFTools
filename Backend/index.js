@@ -12,41 +12,58 @@ import schedule from 'node-schedule';
 import multer from 'multer';
 import admin from 'firebase-admin';
 
-const serviceAccountBuffer = Buffer.from(process.env.FIREBASE_ADMIN_KEY_BASE64, 'base64');
-const serviceAccount = JSON.parse(serviceAccountBuffer.toString('utf-8'));
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
-
-
-env.config(); // Load .env variables early
+env.config(); // Load env vars early
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://uni-sponsor.vercel.app';
-
 const app = express();
 
-// ✅ Setup DB before using it anywhere
+// Setup DB
 const db = new pg.Client({
   user: process.env.PG_USER,
   host: process.env.PG_HOST,
   database: process.env.PG_DATABASE,
   password: process.env.PG_PASSWORD,
   port: process.env.PG_PORT,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  ssl: { rejectUnauthorized: false },
 });
 db.connect();
 
-// ✅ Set up session store
+// Setup Firebase Admin from env base64
+const serviceAccountBuffer = Buffer.from(process.env.FIREBASE_ADMIN_KEY_BASE64, 'base64');
+const serviceAccount = JSON.parse(serviceAccountBuffer.toString('utf-8'));
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+
+// Setup Firebase Client SDK
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+
+// CORS must be set up BEFORE session
+const corsOptions = {
+  origin: FRONTEND_URL,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// Middlewares
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('client/public'));
+
+// Session setup
 const PgSession = pgSession(session);
 app.use(session({
-  store: new PgSession({
-    pool: db,
-    tableName: 'session'
-  }),
+  store: new PgSession({ pool: db, tableName: 'session' }),
   secret: process.env.SESSION_SECRET || 'default_secret',
   resave: false,
   saveUninitialized: false,
@@ -54,35 +71,11 @@ app.use(session({
     secure: true,
     sameSite: 'none',
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24
-  }
+    maxAge: 1000 * 60 * 60 * 24,
+  },
 }));
 
-// ✅ Other middleware
-const corsOptions = {
-  origin: FRONTEND_URL,
-  credentials: true,
-};
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.static('client/public'));
-
 const upload = multer({ storage: multer.memoryStorage() });
-
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID
-};
-
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/client/public/index.html');
