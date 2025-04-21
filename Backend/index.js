@@ -2,12 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import pg from 'pg';
 import bodyParser from 'body-parser';
-import session from "express-session";
-import nodemailer from "nodemailer";
-import env from "dotenv";
-import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import schedule from "node-schedule";
+import session from 'express-session';
+import pgSession from 'connect-pg-simple';
+import nodemailer from 'nodemailer';
+import env from 'dotenv';
+import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import schedule from 'node-schedule';
 import multer from 'multer';
 
 env.config(); // Load .env variables early
@@ -16,29 +17,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://uni-sponsor.vercel.app
 
 const app = express();
 
-const corsOptions = {
-  origin: 'https://uni-sponsor.vercel.app',
-  credentials: true,
-};
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.static('client/public'));
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'default_secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: true,
-      sameSite: 'none'
-    }
-  })
-);
-const upload = multer({ storage: multer.memoryStorage() });
+// ✅ Setup DB before using it anywhere
 const db = new pg.Client({
   user: process.env.PG_USER,
   host: process.env.PG_HOST,
@@ -46,10 +25,42 @@ const db = new pg.Client({
   password: process.env.PG_PASSWORD,
   port: process.env.PG_PORT,
   ssl: {
-    rejectUnauthorized: false, // Required for Heroku/RDS
+    rejectUnauthorized: false,
   },
 });
 db.connect();
+
+// ✅ Set up session store
+const PgSession = pgSession(session);
+app.use(session({
+  store: new PgSession({
+    pool: db,
+    tableName: 'session'
+  }),
+  secret: process.env.SESSION_SECRET || 'default_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,
+    sameSite: 'none',
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24
+  }
+}));
+
+// ✅ Other middleware
+const corsOptions = {
+  origin: FRONTEND_URL,
+  credentials: true,
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static('client/public'));
+
+const upload = multer({ storage: multer.memoryStorage() });
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -77,10 +88,17 @@ app.post('/login', async (req, res) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, emailLogin, passwordLogin);
     req.session.userId = userCredential.user.uid; // Store user ID in session
-    res.status(200).json({ redirectTo: `${FRONTEND_URL}/external` });
-  } catch (error) {
+    req.session.save(() => {
+      res.status(200).json({ redirectTo: `${FRONTEND_URL}/external` });
+    });
+    } catch (error) {
     res.status(401).json({ message: 'Authentication failed', error: error.message });
   }
+});
+
+app.get('/debug-session', (req, res) => {
+  console.log('SESSION CONTENTS:', req.session);
+  res.json({ userId: req.session.userId || null });
 });
 
 app.post('/register', async (req, res) => {
@@ -95,8 +113,10 @@ app.post('/register', async (req, res) => {
       [firebaseId, email]
     );
 
-    res.status(200).json({ redirectTo: `${FRONTEND_URL}/external` });
-  } catch (error) {
+    req.session.save(() => {
+      res.status(200).json({ redirectTo: `${FRONTEND_URL}/external` });
+    });
+    } catch (error) {
     res.status(500).json({ message: 'Registration failed', error: error.message });
   }
 });
@@ -544,6 +564,8 @@ app.post('/upload_contacts', async (req, res) => {
 /* <----------------------CONTACT READ-------------------------------------->*/
 app.get('/get_contacts', async (req, res) => {
   const firebaseId = req.session.userId; 
+  console.log("FIREBASE TEST");
+  console.log(firebaseId);
   try {
 
     

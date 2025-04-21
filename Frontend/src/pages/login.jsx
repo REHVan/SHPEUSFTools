@@ -73,6 +73,17 @@ function Login() {
     }
   };
 
+
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_BACKEND_URL}debug-session`, {
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => console.log('Debug session:', data));
+  }, []);
+
+  
+
   return (
     <div className="min-h-screen bg-cover bg-center flex items-center justify-center p-8">
       <div className="container mx-auto flex flex-col md:flex-row items-start p-8 rounded-lg shadow-lg mt-16">
