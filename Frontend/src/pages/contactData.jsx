@@ -21,7 +21,27 @@ function ContactData() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/get_contacts')
+
+    var UID = 0;
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+    
+      // Check if the key starts with 'firebase:authUser:'
+      if (key.startsWith('firebase:authUser:')) {
+        // Get the user data stored under this key
+        const firebaseUser = sessionStorage.getItem(key);
+    
+        // Parse the JSON and extract the UID
+        if (firebaseUser) {
+          const parsedUser = JSON.parse(firebaseUser);
+          const uid = parsedUser.uid; 
+          UID =uid;
+          break; // Exit loop after finding the correct key
+        }
+      }
+    }
+    
+    fetch(`${process.env.REACT_APP_BACKEND_URL}get_contacts?uid=${UID}`)
       .then((response) => response.json())
       .then((data) => setContacts(data))
       .catch((error) => console.error('Error fetching contacts:', error));
@@ -30,7 +50,7 @@ function ContactData() {
   const handleAddContact = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/add_contact', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}add_contact?uid=${UID}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newContact),

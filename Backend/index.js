@@ -260,7 +260,7 @@ db.connect();
 
 // app.post('/send_email_external', upload.single('attachment'), async (req, res) => {
 //   const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail } = req.body;
-//   const firebaseId = req.session.userId;
+//   const firebaseId = req.body.uid;
 
 //   try {
 //     const userResult = await db.query(
@@ -362,7 +362,7 @@ db.connect();
 // app.post('/schedule_email_external', upload.single('attachment'), async (req, res) => {
 //   const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail, selectedContacts, scheduledStartTime } = req.body;
 //   const startTime = scheduledStartTime ? new Date(scheduledStartTime).getTime() : Date.now();
-//   const firebaseId = req.session.userId;
+//   const firebaseId = req.body.uid;
 
 //   try {
 //     const userResult = await db.query(
@@ -587,7 +587,7 @@ app.get('/get_email_templates', async (req, res) => {
 // /* <----------------------CONTACT CREATE-------------------------------------->*/
 // app.post('/add_contact', isAuthenticated, async (req, res) => {
 //   const { name, email, company, position, notes } = req.body;
-//   const firebaseId = req.session.userId; // This is the firebaseId
+//   const firebaseId = req.query; // This is the firebaseId
 
 //   try {
 //     // Get the actual userId from the User table
@@ -689,10 +689,8 @@ app.get('/get_email_templates', async (req, res) => {
 /* <----------------------CONTACT READ-------------------------------------->*/
 app.get('/get_contacts', async (req, res) => {
   const { uid } = req.query;
-  console.log("WE HITTING TODAY");
   try {
 
-    console.log(uid);
     const userResult = await db.query(
       'SELECT id FROM "User" WHERE "firebaseid" = $1',
       [uid]

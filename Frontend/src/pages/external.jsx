@@ -101,6 +101,25 @@ function External() {
   const sendEmail = async (e) => {
     e.preventDefault();
 
+    var UID = 0;
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+    
+      // Check if the key starts with 'firebase:authUser:'
+      if (key.startsWith('firebase:authUser:')) {
+        // Get the user data stored under this key
+        const firebaseUser = sessionStorage.getItem(key);
+    
+        // Parse the JSON and extract the UID
+        if (firebaseUser) {
+          const parsedUser = JSON.parse(firebaseUser);
+          const uid = parsedUser.uid; 
+          UID =uid;
+          break; // Exit loop after finding the correct key
+        }
+      }
+    }
+
     const endpoint = scheduleMode ? `${process.env.REACT_APP_BACKEND_URL}schedule_email_external` : `${process.env.REACT_APP_BACKEND_URL}send_email_external`;
 
     try {
@@ -109,6 +128,7 @@ function External() {
       formData.append('ccEmail', ccEmail);
       formData.append('subjectEmail', subjectEmail);
       formData.append('messageEmail', message);
+      formData.append('uid', UID);
       formData.append('selectedContacts', JSON.stringify(selectedContacts));
       if (scheduleMode) {
         formData.append('scheduledStartTime', scheduledStartTime);
