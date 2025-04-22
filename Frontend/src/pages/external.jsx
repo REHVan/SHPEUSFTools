@@ -43,11 +43,9 @@ function External() {
       }
     }
 
-
-    fetch(`${process.env.REACT_APP_BACKEND_URL}get_contacts`, {
+    fetch(`${process.env.REACT_APP_BACKEND_URL}get_contacts?uid=${UID}`, {
       credentials: 'include',
-      body: JSON.stringify({ uid: UID }),
-        })
+      })
       .then(async response => {
         const contentType = response.headers.get('content-type');
         if (!response.ok || !contentType || !contentType.includes('application/json')) {
@@ -59,9 +57,8 @@ function External() {
       .then(data => setContacts(data))
       .catch(error => console.error('Error fetching contacts:', error));
 
-    fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates`, {
-      credentials: 'include',
-      body: JSON.stringify({ uid: UID }),
+      fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates?uid=${UID}`, {
+        credentials: 'include',
         })
       .then(async response => {
         const contentType = response.headers.get('content-type');

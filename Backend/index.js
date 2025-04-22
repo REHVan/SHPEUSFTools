@@ -492,7 +492,7 @@ db.connect();
 
 // /* <----------------------EMAIL READ-------------------------------------->*/
 app.get('/get_email_templates', async (req, res) => {
-  const { uid } = req.body;
+  const { uid } = req.query;
   try {
 
     const userResult = await db.query(
@@ -688,7 +688,7 @@ app.get('/get_email_templates', async (req, res) => {
 
 /* <----------------------CONTACT READ-------------------------------------->*/
 app.get('/get_contacts', async (req, res) => {
-  const { uid } = req.body;
+  const { uid } = req.query;
   console.log("WE HITTING TODAY");
   try {
 
@@ -697,7 +697,7 @@ app.get('/get_contacts', async (req, res) => {
       'SELECT id FROM "User" WHERE "firebaseid" = $1',
       [uid]
     );
-    
+
     const user = userResult.rows[0];
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
