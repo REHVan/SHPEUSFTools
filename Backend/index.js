@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import pg from 'pg';
 
 dotenv.config();
 
@@ -70,7 +71,6 @@ app.listen(PORT, () => {
 
 // import express from 'express';
 // import cors from 'cors';
-// import pg from 'pg';
 // import bodyParser from 'body-parser';
 // import session from 'express-session';
 // import pgSession from 'connect-pg-simple';
@@ -91,15 +91,15 @@ app.listen(PORT, () => {
 // app.use(cookieParser());
 
 // // Setup DB
-// const db = new pg.Client({
-//   user: process.env.PG_USER,
-//   host: process.env.PG_HOST,
-//   database: process.env.PG_DATABASE,
-//   password: process.env.PG_PASSWORD,
-//   port: process.env.PG_PORT,
-//   ssl: { rejectUnauthorized: false },
-// });
-// db.connect();
+const db = new pg.Client({
+  user: process.env.PG_USER,
+  host: process.env.PG_HOST,
+  database: process.env.PG_DATABASE,
+  password: process.env.PG_PASSWORD,
+  port: process.env.PG_PORT,
+  ssl: { rejectUnauthorized: false },
+});
+db.connect();
 
 // // Setup Firebase Admin from env base64
 // const serviceAccountBuffer = Buffer.from(process.env.FIREBASE_ADMIN_KEY_BASE64, 'base64');
