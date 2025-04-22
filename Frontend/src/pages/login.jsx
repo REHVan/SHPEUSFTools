@@ -60,7 +60,7 @@ const Login = () => {
       const idToken = await userCredential.user.getIdToken();
       const csrfToken = Cookies.get('csrfToken');
 
-      await fetch(`${process.env.REACT_APP_BACKEND_URL}/sessionLogin`, {
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}sessionLogin`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
