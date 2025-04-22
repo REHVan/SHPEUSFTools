@@ -8,7 +8,7 @@ import {
   browserSessionPersistence,
 } from 'firebase/auth';
 import Cookies from 'js-cookie';
-import { Button } from '../components/Button';
+import Button from '../components/Button';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
