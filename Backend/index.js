@@ -689,15 +689,15 @@ app.get('/get_email_templates', async (req, res) => {
 /* <----------------------CONTACT READ-------------------------------------->*/
 app.get('/get_contacts', async (req, res) => {
   const { uid } = req.body;
-
+  console.log("WE HITTING TODAY");
   try {
 
-    
+    console.log(uid);
     const userResult = await db.query(
       'SELECT id FROM "User" WHERE "firebaseid" = $1',
       [uid]
     );
-
+    
     const user = userResult.rows[0];
     if (!user) {
       return res.status(404).json({ message: 'User not found' });

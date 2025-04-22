@@ -46,8 +46,8 @@ function External() {
 
     fetch(`${process.env.REACT_APP_BACKEND_URL}get_contacts`, {
       credentials: 'include',
-      uid: UID,
-    })
+      body: JSON.stringify({ uid: UID }),
+        })
       .then(async response => {
         const contentType = response.headers.get('content-type');
         if (!response.ok || !contentType || !contentType.includes('application/json')) {
@@ -61,8 +61,8 @@ function External() {
 
     fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates`, {
       credentials: 'include',
-      uid: UID,
-    })
+      body: JSON.stringify({ uid: UID }),
+        })
       .then(async response => {
         const contentType = response.headers.get('content-type');
         if (!response.ok || !contentType || !contentType.includes('application/json')) {
