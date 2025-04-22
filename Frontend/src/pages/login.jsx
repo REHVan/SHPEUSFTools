@@ -42,7 +42,7 @@ export default function HomePage() {
       });
 
       // await auth.signOut();
-      // window.location.assign('/external');
+      window.location.assign('/external');
     } catch (err) {
       console.error('Register error', err);
       alert('Registration failed');
