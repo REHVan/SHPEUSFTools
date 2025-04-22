@@ -44,6 +44,21 @@ app.post('/sessionLogin', async (req, res) => {
       return res.status(401).send('Recent sign in required!');
     }
 
+    const firebaseId = decodedIdToken.uid;
+    const email = decodedIdToken.email;
+
+    // Check if user exists in the database
+    const result = await db.query('SELECT * FROM "User" WHERE "firebaseid" = $1', [firebaseId]);
+
+    if (result.rows.length === 0) {
+      // User does not exist, insert their details into the database
+      await db.query(
+        'INSERT INTO "User" ("firebaseid", "email") VALUES ($1, $2)',
+        [firebaseId, email]
+      );
+    }
+
+    // Create session cookie after successful login or registration
     const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn: EXPIRES_IN });
 
     const options = {
@@ -61,6 +76,7 @@ app.post('/sessionLogin', async (req, res) => {
     res.status(401).send('UNAUTHORIZED REQUEST!');
   }
 });
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

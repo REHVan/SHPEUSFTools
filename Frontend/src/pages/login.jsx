@@ -67,8 +67,7 @@ export default function HomePage() {
         body: JSON.stringify({ idToken, csrfToken }),
       });
 
-      await auth.signOut();
-      window.location.assign('/profile');
+      window.location.assign('/external');
     } catch (err) {
       console.error('Login error', err);
       alert('Login failed');
