@@ -7,7 +7,7 @@ import cors from 'cors';
 dotenv.config();
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://uni-sponsor.vercel.app';
-const EXPIRES_IN = 60 * 60 * 24 * 5 * 1000; // 5 days
+const EXPIRES_IN = 60 * 60 * 24 * 5 * 1000; 
 
 const app = express();
 
@@ -61,7 +61,6 @@ app.post('/sessionLogin', async (req, res) => {
   }
 });
 
-// ✅ THIS is what Heroku needs to keep the process alive
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🔥 Server is running on port ${PORT}`);
@@ -476,40 +475,40 @@ app.listen(PORT, () => {
 
 
 // /* <----------------------EMAIL READ-------------------------------------->*/
-// app.get('/get_email_templates', async (req, res) => {
-//   const firebaseId = req.session.userId; 
-//   try {
+app.get('/get_email_templates', async (req, res) => {
+  const { uid } = req.body;
+  try {
 
-//     const userResult = await db.query(
-//       'SELECT id FROM "User" WHERE "firebaseid" = $1',
-//       [firebaseId]
-//     );
+    const userResult = await db.query(
+      'SELECT id FROM "User" WHERE "firebaseid" = $1',
+      [uid]
+    );
 
-//     const user = userResult.rows[0];
-//     if (!user) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
+    const user = userResult.rows[0];
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-//     const userId = user.id; 
-//     const emailIdResults = await db.query('SELECT emailid FROM "UserEmailTemplate" WHERE "userid" = $1', [userId]);
+    const userId = user.id; 
+    const emailIdResults = await db.query('SELECT emailid FROM "UserEmailTemplate" WHERE "userid" = $1', [userId]);
 
-//     const emailIds = emailIdResults.rows.map(row => row.emailid); 
+    const emailIds = emailIdResults.rows.map(row => row.emailid); 
 
-//     if (emailIds.length === 0) {
-//       return res.json([]); 
-//     }
+    if (emailIds.length === 0) {
+      return res.json([]); 
+    }
 
-//     const result = await db.query(
-//       'SELECT * FROM "EmailTemplates" WHERE "id" = ANY($1)',
-//       [emailIds] // Passing the array of ContactIds
-//     );
+    const result = await db.query(
+      'SELECT * FROM "EmailTemplates" WHERE "id" = ANY($1)',
+      [emailIds] // Passing the array of ContactIds
+    );
 
-//     res.json(result.rows);
-//   } catch (error) {
-//     console.error('Error fetching email templates:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching email templates:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // /* <----------------------EMAIL UPDATE-------------------------------------->*/
 // app.put('/update_template/:id', async (req, res) => {
@@ -671,45 +670,44 @@ app.listen(PORT, () => {
 //   }
 // });
 
-// /* <----------------------CONTACT READ-------------------------------------->*/
-// app.get('/get_contacts', async (req, res) => {
-//   const firebaseId = req.session.userId; 
-//   console.log("FIREBASE TEST");
-//   console.log(firebaseId);
-//   try {
+/* <----------------------CONTACT READ-------------------------------------->*/
+app.get('/get_contacts', async (req, res) => {
+  const { uid } = req.body;
+
+  try {
 
     
-//     const userResult = await db.query(
-//       'SELECT id FROM "User" WHERE "firebaseid" = $1',
-//       [firebaseId]
-//     );
+    const userResult = await db.query(
+      'SELECT id FROM "User" WHERE "firebaseid" = $1',
+      [uid]
+    );
 
-//     const user = userResult.rows[0];
-//     if (!user) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
+    const user = userResult.rows[0];
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-//     const userId = user.id; 
-//     const contactIdResults = await db.query('SELECT contactid FROM "UserContact" WHERE "userid" = $1', [userId]);
+    const userId = user.id; 
+    const contactIdResults = await db.query('SELECT contactid FROM "UserContact" WHERE "userid" = $1', [userId]);
 
-//     // Map the contactid field correctly based on the query result
-//     const contactIds = contactIdResults.rows.map(row => row.contactid); 
+    // Map the contactid field correctly based on the query result
+    const contactIds = contactIdResults.rows.map(row => row.contactid); 
 
-//     if (contactIds.length === 0) {
-//       return res.json([]);
-//     }
+    if (contactIds.length === 0) {
+      return res.json([]);
+    }
 
-//     const result = await db.query(
-//       'SELECT * FROM "Contacts" WHERE "id" = ANY($1)',
-//       [contactIds] // Passing the array of ContactIds
-//     );
+    const result = await db.query(
+      'SELECT * FROM "Contacts" WHERE "id" = ANY($1)',
+      [contactIds] // Passing the array of ContactIds
+    );
 
-//     res.json(result.rows);
-//   } catch (error) {
-//     console.error('Error fetching contacts:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching contacts:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 // /* <----------------------CONTACT UPDATE-------------------------------------->*/

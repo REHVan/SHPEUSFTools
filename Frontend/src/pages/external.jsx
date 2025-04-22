@@ -23,8 +23,30 @@ function External() {
   const navigate = useNavigate();
 
   useEffect(() => {
+
+    var UID = 0;
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+    
+      // Check if the key starts with 'firebase:authUser:'
+      if (key.startsWith('firebase:authUser:')) {
+        // Get the user data stored under this key
+        const firebaseUser = sessionStorage.getItem(key);
+    
+        // Parse the JSON and extract the UID
+        if (firebaseUser) {
+          const parsedUser = JSON.parse(firebaseUser);
+          const uid = parsedUser.uid; 
+          UID =uid;
+          break; // Exit loop after finding the correct key
+        }
+      }
+    }
+
+
     fetch(`${process.env.REACT_APP_BACKEND_URL}get_contacts`, {
-      credentials: 'include'
+      credentials: 'include',
+      uid: UID,
     })
       .then(async response => {
         const contentType = response.headers.get('content-type');
@@ -38,7 +60,8 @@ function External() {
       .catch(error => console.error('Error fetching contacts:', error));
 
     fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates`, {
-      credentials: 'include'
+      credentials: 'include',
+      uid: UID,
     })
       .then(async response => {
         const contentType = response.headers.get('content-type');
