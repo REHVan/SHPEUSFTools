@@ -1,5 +1,96 @@
+// Login.jsx
 import React, { useState } from 'react';
 import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+  setPersistence,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  browserSessionPersistence,
+} from 'firebase/auth';
+import Cookies from 'js-cookie';
+
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+
+const Login = () => {
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    try {
+      await setPersistence(auth, browserSessionPersistence);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const idToken = await userCredential.user.getIdToken();
+      const csrfToken = Cookies.get('csrfToken');
+
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/sessionLogin`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken, csrfToken }),
+      });
+
+      //await auth.signOut();
+      //window.location.assign('/external');
+    } catch (err) {
+      console.error('Register error', err);
+      alert('Registration failed');
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    try {
+      await setPersistence(auth, browserSessionPersistence);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await userCredential.user.getIdToken();
+      const csrfToken = Cookies.get('csrfToken');
+
+      await fetch(`${process.env.REACT_APP_BACKEND_URL}/sessionLogin`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken, csrfToken }),
+      });
+
+      await auth.signOut();
+      window.location.assign('/profile');
+    } catch (err) {
+      console.error('Login error', err);
+      alert('Login failed');
+    }
+  };
+
+  return (
+    <form onSubmit={isRegistering ? handleRegister : handleLogin}>
+      <input name="email" placeholder="Email" type="email" required />
+      <input name="password" placeholder="Password" type="password" required />
+      <button type="submit">{isRegistering ? 'Register' : 'Login'}</button>
+      <p onClick={() => setIsRegistering(!isRegistering)}>
+        {isRegistering ? 'Already have an account? Log in' : 'New here? Register'}
+      </p>
+    </form>
+  );
+};
+
+export default Login;
+/*import React, { useState } from 'react';
+import { initializeApp } from 'firebase/app';
+import {firebase} from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import HeaderDisplay from '../components/HeaderDisplay';
 import FormInputDisplay from '../components/FormInputDisplay';
@@ -27,29 +118,31 @@ function Login() {
     const password = formData.get('password');
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const idToken = await userCredential.user.getIdToken();
-      window.alert(idToken);
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}sessionLogin`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ idToken }),
-      });
 
-      const checkSession = await fetch(`${process.env.REACT_APP_BACKEND_URL}debug-session`, {
-        credentials: 'include',
-      });
-      console.log(await checkSession.json());
+      firebase.auth().setPersistence
+      // const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // const idToken = await userCredential.user.getIdToken();
+      // window.alert(idToken);
+      // const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}sessionLogin`, {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   credentials: 'include',
+      //   body: JSON.stringify({ idToken }),
+      // });
 
-      const data = await response.json();
+      // const checkSession = await fetch(`${process.env.REACT_APP_BACKEND_URL}debug-session`, {
+      //   credentials: 'include',
+      // });
+      // console.log(await checkSession.json());
 
-      if (!response.ok) {
-        alert(data.message || 'Failed to establish session');
-        return;
-      }
-      console.log(`${process.env.REACT_APP_FRONTEND_URL}`);
-      window.alert("hold");
+      // const data = await response.json();
+
+      // if (!response.ok) {
+      //   alert(data.message || 'Failed to establish session');
+      //   return;
+      // }
+      // console.log(`${process.env.REACT_APP_FRONTEND_URL}`);
+      // window.alert("hold");
      // window.location.href = `${process.env.REACT_APP_FRONTEND_URL}/external`;
     } catch (err) {
       console.error('Registration error:', err);
@@ -132,3 +225,4 @@ function Login() {
 }
 
 export default Login;
+*/
