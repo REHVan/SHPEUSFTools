@@ -589,7 +589,7 @@ app.get('/get_email_templates', async (req, res) => {
 // /* <----------------------CONTACT CREATE-------------------------------------->*/
 app.post('/add_contact', isAuthenticated, async (req, res) => {
   const { name, email, company, position, notes } = req.body;
-  const firebaseId = req.query; // This is the firebaseId
+  const firebaseId = req.query.uid; // This is the firebaseId
   console.log("WE HITTING ADD CONTACT")
 
   try {
@@ -734,51 +734,51 @@ app.get('/get_contacts', async (req, res) => {
 
 
 // /* <----------------------CONTACT UPDATE-------------------------------------->*/
-// app.put('/update_contact/:id', async (req, res) => {
-//   const { id } = req.params;
-//   const updatedContact = req.body;
+app.put('/update_contact/:id', async (req, res) => {
+  const { id } = req.params;
+  const updatedContact = req.body;
   
-//   try {
-//     const result = await db.query(
-//       `UPDATE "Contacts" SET name = $1, email = $2, company = $3, position = $4, notes = $5 WHERE id = $6 RETURNING *`,
-//       [updatedContact.name, updatedContact.email, updatedContact.company, updatedContact.position, updatedContact.notes, id]
-//     );
+  try {
+    const result = await db.query(
+      `UPDATE "Contacts" SET name = $1, email = $2, company = $3, position = $4, notes = $5 WHERE id = $6 RETURNING *`,
+      [updatedContact.name, updatedContact.email, updatedContact.company, updatedContact.position, updatedContact.notes, id]
+    );
     
-//     res.status(200).json(result.rows[0]);
-//   } catch (error) {
-//     console.error('Error updating contact:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error updating contact:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 
 // /* <----------------------CONTACT DETELETE-------------------------------------->*/
-// app.delete('/delete_contact/:id', async (req, res) => {
-//   const firebaseId = req.session.userId; 
-//   const { id } = req.params;
-//   try {
-//     const userResult = await db.query(
-//       'SELECT id FROM "User" WHERE "firebaseid" = $1',
-//       [firebaseId]
-//     );
+app.delete('/delete_contact/:id', async (req, res) => {
+  const firebaseId = req.session.userId; 
+  const { id } = req.params;
+  try {
+    const userResult = await db.query(
+      'SELECT id FROM "User" WHERE "firebaseid" = $1',
+      [firebaseId]
+    );
 
-//     const user = userResult.rows[0];
-//     if (!user) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
+    const user = userResult.rows[0];
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-//     const userId = user.id; 
-//     await db.query('DELETE FROM "UserContact" WHERE userid = $1 and contactid = $2', [userId, id]);
-//     await db.query('DELETE FROM "Contacts" WHERE id = $1', [id]);
+    const userId = user.id; 
+    await db.query('DELETE FROM "UserContact" WHERE userid = $1 and contactid = $2', [userId, id]);
+    await db.query('DELETE FROM "Contacts" WHERE id = $1', [id]);
 
 
-//     res.status(200).send('Contact deleted successfully'); 
-//   } catch (error) {
-//     console.error('Error deleting contact:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+    res.status(200).send('Contact deleted successfully'); 
+  } catch (error) {
+    console.error('Error deleting contact:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 // const PORT = process.env.PORT || 5000;
