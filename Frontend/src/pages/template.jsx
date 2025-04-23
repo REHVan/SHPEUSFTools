@@ -66,7 +66,7 @@ function Template() {
         }
       }
     }
-    
+    delete_template
     
       
 
@@ -166,7 +166,6 @@ function Template() {
               </tr>
             </thead>
             <tbody>
-              {console.log(templates)}
               {templates.map((template) => (
                 <tr key={template.id} className="border-t">
                   <td className="py-2 px-4">{template.name}</td>

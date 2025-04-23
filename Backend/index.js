@@ -455,14 +455,14 @@ const isAuthenticated = (req, res, next) => {
 // /* <----------------------EMAIL CRUD-------------------------------------->*/
 // /* <----------------------EMAIL CREATE-------------------------------------->*/
 app.post('/add_email_template', async (req, res) => {
+  const { uid } = req.query;
   const { templateName, subject, body } = req.body;
-  const { firebaseId } = req.query;
 
   try {
 
     const userResult = await db.query(
       'SELECT id FROM "User" WHERE "firebaseid" = $1',
-      [firebaseId]
+      [uid]
     );
 
     const user = userResult.rows[0];
@@ -550,12 +550,13 @@ app.put('/update_template/:id', async (req, res) => {
 
 // /* <----------------------EMAIL DELETE-------------------------------------->*/
 app.delete('/delete_template/:id', async (req, res) => {
-    const { firebaseId } = req.query;
     const { id } = req.params;
+    const { uid } = req.query;
+  
     try {
       const userResult = await db.query(
         'SELECT id FROM "User" WHERE "firebaseid" = $1',
-        [firebaseId]
+        [uid]
       );
   
       const user = userResult.rows[0];
