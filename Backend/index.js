@@ -638,63 +638,63 @@ app.post('/add_contact', isAuthenticated, async (req, res) => {
 
 // /* <----------------------CONTACT CREATE - UPLOAD-------------------------------------->*/
 
-// app.post('/upload_contacts', async (req, res) => {
-//   const { contacts } = req.body;
-//   const firebaseId = req.session.userId;
+app.post('/upload_contacts', async (req, res) => {
+   const { firebaseId } = req.query;
+  const { contacts } = req.body;
 
-//   try {    
-//       // Get the actual userId from the User table
-//       const userResult = await db.query(
-//         'SELECT id FROM "User" WHERE "firebaseid" = $1',
-//         [firebaseId]
-//       );
+  try {    
+      // Get the actual userId from the User table
+      const userResult = await db.query(
+        'SELECT id FROM "User" WHERE "firebaseid" = $1',
+        [firebaseId]
+      );
   
-//       const user = userResult.rows[0];
-//       if (!user) {
-//         return res.status(404).json({ message: 'User not found' });
-//       }
+      const user = userResult.rows[0];
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
   
-//       const userId = user.id; // Get the actual userId from the User table
+      const userId = user.id; // Get the actual userId from the User table
 
-//     const values = contacts.map(contact => [
-//       contact.name,
-//       contact.email,
-//       contact.comapny,
-//       contact.position,
-//       contact.notes,
-//     ]);
+    const values = contacts.map(contact => [
+      contact.name,
+      contact.email,
+      contact.comapny,
+      contact.position,
+      contact.notes,
+    ]);
 
-//     const inserted = [];
+    const inserted = [];
 
-//     for (const [name, email, company, position, notes] of values) {
-
-
+    for (const [name, email, company, position, notes] of values) {
 
 
 
-//       const contactResult = await db.query(
-//         `INSERT INTO "Contacts" (name, email, company, position, notes)
-//          VALUES ($1, $2, $3, $4, $5)
-//          RETURNING *`,
-//         [name, email, company, position, notes]
-//       );
+
+
+      const contactResult = await db.query(
+        `INSERT INTO "Contacts" (name, email, company, position, notes)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING *`,
+        [name, email, company, position, notes]
+      );
   
-//       const newContact = contactResult.rows[0];
+      const newContact = contactResult.rows[0];
   
-//       // Insert into UserContact table linking the user to the contact
-//       await db.query(
-//         'INSERT INTO "UserContact" (userid, contactid) VALUES ($1, $2)',
-//         [userId, newContact.id]
-//       );
-//       inserted.push(newContact);
-//     }
+      // Insert into UserContact table linking the user to the contact
+      await db.query(
+        'INSERT INTO "UserContact" (userid, contactid) VALUES ($1, $2)',
+        [userId, newContact.id]
+      );
+      inserted.push(newContact);
+    }
 
-//     res.status(201).json(inserted);
-//   } catch (error) {
-//     console.error('Error uploading contacts:', error);
-//     res.status(500).send('Error uploading contacts');
-//   }
-// });
+    res.status(201).json(inserted);
+  } catch (error) {
+    console.error('Error uploading contacts:', error);
+    res.status(500).send('Error uploading contacts');
+  }
+});
 
 /* <----------------------CONTACT READ-------------------------------------->*/
 app.get('/get_contacts', async (req, res) => {

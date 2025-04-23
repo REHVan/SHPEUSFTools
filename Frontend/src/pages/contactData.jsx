@@ -186,7 +186,26 @@ function ContactData() {
 
       // Expected keys: company_name, contact_name, email_address, position, notes
       try {
-        const response = await fetch('/upload_contacts', {
+        var UID = 0;
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+        
+          // Check if the key starts with 'firebase:authUser:'
+          if (key.startsWith('firebase:authUser:')) {
+            // Get the user data stored under this key
+            const firebaseUser = sessionStorage.getItem(key);
+        
+            // Parse the JSON and extract the UID
+            if (firebaseUser) {
+              const parsedUser = JSON.parse(firebaseUser);
+              const uid = parsedUser.uid; 
+              UID =uid;
+              break; // Exit loop after finding the correct key
+            }
+          }
+        }
+        
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}upload_contacts?uid=${UID}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ contacts: jsonData })
