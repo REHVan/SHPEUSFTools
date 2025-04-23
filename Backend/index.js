@@ -454,42 +454,42 @@ const isAuthenticated = (req, res, next) => {
 
 // /* <----------------------EMAIL CRUD-------------------------------------->*/
 // /* <----------------------EMAIL CREATE-------------------------------------->*/
-// app.post('/add_email_template', async (req, res) => {
-//   const { templateName, subject, body } = req.body;
-//   const firebaseId = req.session.userId; 
+app.post('/add_email_template', async (req, res) => {
+  const { templateName, subject, body } = req.body;
+  const { firebaseId } = req.query;
 
-//   try {
+  try {
 
-//     const userResult = await db.query(
-//       'SELECT id FROM "User" WHERE "firebaseid" = $1',
-//       [firebaseId]
-//     );
+    const userResult = await db.query(
+      'SELECT id FROM "User" WHERE "firebaseid" = $1',
+      [firebaseId]
+    );
 
-//     const user = userResult.rows[0];
-//     if (!user) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
-//     const userId = user.id;
+    const user = userResult.rows[0];
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const userId = user.id;
 
-//     const templateResult = await db.query(
-//       'INSERT INTO "EmailTemplates" (name, emailsubject, emailbody) VALUES ($1, $2, $3) RETURNING *',
-//       [templateName, subject, body]
-//     );
+    const templateResult = await db.query(
+      'INSERT INTO "EmailTemplates" (name, emailsubject, emailbody) VALUES ($1, $2, $3) RETURNING *',
+      [templateName, subject, body]
+    );
 
 
-//     const newTemplate = templateResult.rows[0];
+    const newTemplate = templateResult.rows[0];
 
-//     await db.query(
-//       'INSERT INTO "UserEmailTemplate" (userid, emailid) VALUES ($1, $2)',
-//       [userId, newTemplate.id]
-//     );
+    await db.query(
+      'INSERT INTO "UserEmailTemplate" (userid, emailid) VALUES ($1, $2)',
+      [userId, newTemplate.id]
+    );
 
-//     res.status(201).json(newTemplate); // Respond with the new template
-//   } catch (error) {
-//     console.error('Error adding email template:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+    res.status(201).json(newTemplate); // Respond with the new template
+  } catch (error) {
+    console.error('Error adding email template:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 // /* <----------------------EMAIL READ-------------------------------------->*/
@@ -529,53 +529,53 @@ app.get('/get_email_templates', async (req, res) => {
 });
 
 // /* <----------------------EMAIL UPDATE-------------------------------------->*/
-// app.put('/update_template/:id', async (req, res) => {
-//   const { id } = req.params;
-//   const { templateName, subject, body } = req.body;
+app.put('/update_template/:id', async (req, res) => {
+  const { id } = req.params;
+  const { templateName, subject, body } = req.body;
 
-//   try {
+  try {
 
-//     const result = await db.query(
-//       'UPDATE "EmailTemplates" SET name = $1, emailsubject = $2, emailbody = $3 WHERE id = $4 RETURNING *',
-//       [templateName, subject, body, id]
-//     );
+    const result = await db.query(
+      'UPDATE "EmailTemplates" SET name = $1, emailsubject = $2, emailbody = $3 WHERE id = $4 RETURNING *',
+      [templateName, subject, body, id]
+    );
 
-//     const updatedTemplate = result.rows[0]; // Get the updated template
-//     res.status(200).json(updatedTemplate); // Respond with the updated template
-//   } catch (error) {
-//     console.error('Error updating email template:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+    const updatedTemplate = result.rows[0]; // Get the updated template
+    res.status(200).json(updatedTemplate); // Respond with the updated template
+  } catch (error) {
+    console.error('Error updating email template:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // /* <----------------------EMAIL DELETE-------------------------------------->*/
-// app.delete('/delete_template/:id', async (req, res) => {
-//     const firebaseId = req.session.userId; 
-//     const { id } = req.params;
-//     try {
-//       const userResult = await db.query(
-//         'SELECT id FROM "User" WHERE "firebaseid" = $1',
-//         [firebaseId]
-//       );
+app.delete('/delete_template/:id', async (req, res) => {
+    const { firebaseId } = req.query;
+    const { id } = req.params;
+    try {
+      const userResult = await db.query(
+        'SELECT id FROM "User" WHERE "firebaseid" = $1',
+        [firebaseId]
+      );
   
-//       const user = userResult.rows[0];
-//       if (!user) {
-//         return res.status(404).json({ message: 'User not found' });
-//       }
+      const user = userResult.rows[0];
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
 
       
 
 
-//     const userId = user.id; 
-//     await db.query('DELETE FROM "UserEmailTemplate" WHERE userid = $1 and emailid = $2', [userId, id]);
-//     await db.query('DELETE FROM "EmailTemplates" WHERE id = $1', [id]);
+    const userId = user.id; 
+    await db.query('DELETE FROM "UserEmailTemplate" WHERE userid = $1 and emailid = $2', [userId, id]);
+    await db.query('DELETE FROM "EmailTemplates" WHERE id = $1', [id]);
 
-//     res.status(204).send(); // Send no content response
-//   } catch (error) {
-//     console.error('Error deleting email template:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+    res.status(204).send(); // Send no content response
+  } catch (error) {
+    console.error('Error deleting email template:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 

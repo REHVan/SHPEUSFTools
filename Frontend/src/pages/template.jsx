@@ -32,7 +32,7 @@ function Template() {
       }
     }
     
-    
+
     const fetchTemplates = async () => {
       try {
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates?uid=${UID}`);
@@ -47,7 +47,30 @@ function Template() {
 
   const handleAddOrUpdateTemplate = async (e) => {
     e.preventDefault();
-    const endpoint = editingTemplateId ? `/update_template/${editingTemplateId}` : '/add_email_template';
+
+    var UID = 0;
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+    
+      // Check if the key starts with 'firebase:authUser:'
+      if (key.startsWith('firebase:authUser:')) {
+        // Get the user data stored under this key
+        const firebaseUser = sessionStorage.getItem(key);
+    
+        // Parse the JSON and extract the UID
+        if (firebaseUser) {
+          const parsedUser = JSON.parse(firebaseUser);
+          const uid = parsedUser.uid; 
+          UID =uid;
+          break; // Exit loop after finding the correct key
+        }
+      }
+    }
+    
+    
+      
+
+    const endpoint = editingTemplateId ? `${process.env.REACT_APP_BACKEND_URL}update_template/${editingTemplateId}?uid=${UID}` : `${process.env.REACT_APP_BACKEND_URL}add_email_template?uid=${UID}`;
     const method = editingTemplateId ? 'PUT' : 'POST';
     try {
       const response = await fetch(endpoint, {
@@ -79,7 +102,27 @@ function Template() {
 
   const handleDelete = async (templateId) => {
     try {
-      const response = await fetch(`/delete_template/${templateId}`, { method: 'DELETE' });
+      var UID = 0;
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+      
+        // Check if the key starts with 'firebase:authUser:'
+        if (key.startsWith('firebase:authUser:')) {
+          // Get the user data stored under this key
+          const firebaseUser = sessionStorage.getItem(key);
+      
+          // Parse the JSON and extract the UID
+          if (firebaseUser) {
+            const parsedUser = JSON.parse(firebaseUser);
+            const uid = parsedUser.uid; 
+            UID =uid;
+            break; // Exit loo
+            // p after finding the correct key
+          }
+        }
+      }
+      
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}delete_template/${templateId}?uid=${UID}`, { method: 'DELETE' });
       if (response.ok) {
         setTemplates((prevTemplates) => prevTemplates.filter((t) => t.id !== templateId));
       }
