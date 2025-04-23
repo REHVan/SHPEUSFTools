@@ -109,7 +109,7 @@ function ContactData() {
   const handleBlur = async () => {
     if (currentContactId) {
       try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}update_contact?uid=${currentContactId}`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}update_contact/${currentContactId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ function ContactData() {
   };
 
   const handleDelete = (contactId) => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}delete_contact?uid=${contactId}`, { method: 'DELETE' })
+    fetch(`${process.env.REACT_APP_BACKEND_URL}delete_contact/${contactId}`, { method: 'DELETE' })
       .then((response) => {
         if (response.ok) {
           setContacts((prevContacts) => prevContacts.filter((contact) => contact.id !== contactId));
