@@ -585,46 +585,46 @@ app.get('/get_email_templates', async (req, res) => {
 
 // /* <----------------------CONTACT CRUD-------------------------------------->*/
 // /* <----------------------CONTACT CREATE-------------------------------------->*/
-// app.post('/add_contact', isAuthenticated, async (req, res) => {
-//   const { name, email, company, position, notes } = req.body;
-//   const firebaseId = req.query; // This is the firebaseId
+app.post('/add_contact', isAuthenticated, async (req, res) => {
+  const { name, email, company, position, notes } = req.body;
+  const firebaseId = req.query; // This is the firebaseId
 
-//   try {
-//     // Get the actual userId from the User table
-//     const userResult = await db.query(
-//       'SELECT id FROM "User" WHERE "firebaseid" = $1',
-//       [firebaseId]
-//     );
+  try {
+    // Get the actual userId from the User table
+    const userResult = await db.query(
+      'SELECT id FROM "User" WHERE "firebaseid" = $1',
+      [firebaseId]
+    );
 
-//     const user = userResult.rows[0];
-//     if (!user) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
+    const user = userResult.rows[0];
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-//     const userId = user.id; // Get the actual userId from the User table
+    const userId = user.id; // Get the actual userId from the User table
 
-//     // Insert the new contact into the Contacts table
-//     const contactResult = await db.query(
-//       `INSERT INTO "Contacts" (name, email, company, position, notes)
-//        VALUES ($1, $2, $3, $4, $5)
-//        RETURNING *`,
-//       [name, email, company, position, notes]
-//     );
+    // Insert the new contact into the Contacts table
+    const contactResult = await db.query(
+      `INSERT INTO "Contacts" (name, email, company, position, notes)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [name, email, company, position, notes]
+    );
 
-//     const newContact = contactResult.rows[0];
+    const newContact = contactResult.rows[0];
 
-//     // Insert into UserContact table linking the user to the contact
-//     await db.query(
-//       'INSERT INTO "UserContact" (userid, contactid) VALUES ($1, $2)',
-//       [userId, newContact.id]
-//     );
+    // Insert into UserContact table linking the user to the contact
+    await db.query(
+      'INSERT INTO "UserContact" (userid, contactid) VALUES ($1, $2)',
+      [userId, newContact.id]
+    );
 
-//     res.status(201).json(newContact);
-//   } catch (error) {
-//     console.error('Error adding new contact:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+    res.status(201).json(newContact);
+  } catch (error) {
+    console.error('Error adding new contact:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 // /* <----------------------CONTACT CREATE - UPLOAD-------------------------------------->*/
 
