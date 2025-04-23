@@ -65,9 +65,7 @@ function Template() {
           break; // Exit loop after finding the correct key
         }
       }
-    }
-    delete_template
-    
+    }    
       
 
     const endpoint = editingTemplateId ? `${process.env.REACT_APP_BACKEND_URL}update_template/${editingTemplateId}?uid=${UID}` : `${process.env.REACT_APP_BACKEND_URL}add_email_template?uid=${UID}`;
