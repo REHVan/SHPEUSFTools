@@ -105,6 +105,7 @@ function ContactData() {
     });
   };
 
+  console.log("TESITNG");
   const handleBlur = async () => {
     if (currentContactId) {
       try {
