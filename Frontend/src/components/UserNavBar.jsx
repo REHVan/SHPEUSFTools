@@ -3,12 +3,25 @@ import { Link } from 'react-router-dom';
 
 function UserNavBar() {
     return (
-        <nav className="bg-gray-800 p-4 h-screen w-64 fixed">
-            <div className="container mx-auto flex flex-col items-start">
+        <nav className="bg-black p-4 h-screen w-48 fixed shadow-lg rounded-r-lg">
+            <div className="flex flex-col items-start">
                 <ul className="space-y-4">
-                    <li><Link to="/external" className="text-white hover:bg-gray-700 px-3 py-2 rounded block">Send Email</Link></li>
-                    <li><Link to="/contactdata" className="text-white hover:bg-gray-700 px-3 py-2 rounded block">Contact Data</Link></li>
-                    <li><Link to="/template" className="text-white hover:bg-gray-700 px-3 py-2 rounded block">Email Template</Link></li>
+                    <li>
+                        <Link to="/external" className="text-white hover:bg-gray-700 px-3 py-2 rounded-md block text-sm">
+                            Send Email
+                        </Link>
+                    </li>
+                    <li>
+                        <Link to="/contactdata" className="text-white hover:bg-gray-700 px-3 py-2 rounded-md block text-sm">
+                            Contact Data
+                        </Link>
+                    </li>
+                    <li>
+                        <Link to="/template" className="text-white hover:bg-gray-700 px-3 py-2 rounded-md block text-sm">
+                            Email Template
+                        </Link>
+                    </li>
+
                 </ul>
             </div>
         </nav>
@@ -16,6 +29,25 @@ function UserNavBar() {
 }
 
 export default UserNavBar;
+
+// import React from 'react';
+// import { Link } from 'react-router-dom';
+
+// function UserNavBar() {
+//     return (
+//         <nav className="bg-gray-800 p-4 h-screen w-64 fixed">
+//             <div className="container mx-auto flex flex-col items-start">
+//                 <ul className="space-y-4">
+//                     <li><Link to="/external" className="text-white hover:bg-gray-700 px-3 py-2 rounded block">Send Email</Link></li>
+//                     <li><Link to="/contactdata" className="text-white hover:bg-gray-700 px-3 py-2 rounded block">Contact Data</Link></li>
+//                     <li><Link to="/template" className="text-white hover:bg-gray-700 px-3 py-2 rounded block">Email Template</Link></li>
+//                 </ul>
+//             </div>
+//         </nav>
+//     );
+// }
+
+// export default UserNavBar;
 
 // import React from 'react';
 // import { Link } from 'react-router-dom';
