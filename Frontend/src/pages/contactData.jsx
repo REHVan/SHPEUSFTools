@@ -144,7 +144,25 @@ function ContactData() {
   };
 
   const handleDelete = (contactId) => {
-    fetch(`${process.env.REACT_APP_BACKEND_URL}delete_contact/${contactId}`, { method: 'DELETE' })
+    var UID = 0;
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+    
+      // Check if the key starts with 'firebase:authUser:'
+      if (key.startsWith('firebase:authUser:')) {
+        // Get the user data stored under this key
+        const firebaseUser = sessionStorage.getItem(key);
+    
+        // Parse the JSON and extract the UID
+        if (firebaseUser) {
+          const parsedUser = JSON.parse(firebaseUser);
+          const uid = parsedUser.uid; 
+          UID =uid;
+          break; // Exit loop after finding the correct key
+        }
+      }
+    }
+    fetch(`${process.env.REACT_APP_BACKEND_URL}delete_contact/${contactId}?uid=${UID}`, { method: 'DELETE' })
       .then((response) => {
         if (response.ok) {
           setContacts((prevContacts) => prevContacts.filter((contact) => contact.id !== contactId));

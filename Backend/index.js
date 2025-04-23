@@ -755,12 +755,12 @@ app.put('/update_contact/:id', async (req, res) => {
 
 // /* <----------------------CONTACT DETELETE-------------------------------------->*/
 app.delete('/delete_contact/:id', async (req, res) => {
-  const firebaseId = req.session.userId; 
+  const { uid } = req.query;
   const { id } = req.params;
   try {
     const userResult = await db.query(
       'SELECT id FROM "User" WHERE "firebaseid" = $1',
-      [firebaseId]
+      [uid]
     );
 
     const user = userResult.rows[0];
