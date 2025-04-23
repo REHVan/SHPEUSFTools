@@ -639,14 +639,14 @@ app.post('/add_contact', isAuthenticated, async (req, res) => {
 // /* <----------------------CONTACT CREATE - UPLOAD-------------------------------------->*/
 
 app.post('/upload_contacts', async (req, res) => {
-   const { firebaseId } = req.query;
+  const { uid } = req.query; 
   const { contacts } = req.body;
 
   try {    
       // Get the actual userId from the User table
       const userResult = await db.query(
         'SELECT id FROM "User" WHERE "firebaseid" = $1',
-        [firebaseId]
+        [uid]
       );
   
       const user = userResult.rows[0];
@@ -659,7 +659,7 @@ app.post('/upload_contacts', async (req, res) => {
     const values = contacts.map(contact => [
       contact.name,
       contact.email,
-      contact.comapny,
+      contact.company,
       contact.position,
       contact.notes,
     ]);
