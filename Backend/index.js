@@ -246,13 +246,15 @@ db.connect();
 //   }
 // });
 
-// const isAuthenticated = (req, res, next) => {
-//   if (req.session.userId) {
-//     next();
-//   } else {
-//     res.status(401).json({ message: 'Unauthorized' });
-//   }
-// };
+//TODO: Fix authentication
+const isAuthenticated = (req, res, next) => {
+  next();
+  // if (req.session.userId) {
+  //   next();
+  // } else {
+  //   res.status(401).json({ message: 'Unauthorized' });
+  // }
+};
 
 // app.get('/user', isAuthenticated, (req, res) => {
 //   res.json({ userId: req.session.userId });
@@ -588,6 +590,7 @@ app.get('/get_email_templates', async (req, res) => {
 app.post('/add_contact', isAuthenticated, async (req, res) => {
   const { name, email, company, position, notes } = req.body;
   const firebaseId = req.query; // This is the firebaseId
+  console.log("WE HITTING ADD CONTACT")
 
   try {
     // Get the actual userId from the User table
@@ -596,12 +599,16 @@ app.post('/add_contact', isAuthenticated, async (req, res) => {
       [firebaseId]
     );
 
+    console.log("WE HITTING ADD CONTACT PART TWO")
+    console.log(firebaseId)
+
     const user = userResult.rows[0];
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     const userId = user.id; // Get the actual userId from the User table
+    console.log("WE HITTING ADD CONTACT PART THREE")
 
     // Insert the new contact into the Contacts table
     const contactResult = await db.query(
@@ -610,6 +617,7 @@ app.post('/add_contact', isAuthenticated, async (req, res) => {
        RETURNING *`,
       [name, email, company, position, notes]
     );
+    console.log("WE HITTING ADD CONTACT PART FOUR")
 
     const newContact = contactResult.rows[0];
 
@@ -618,6 +626,7 @@ app.post('/add_contact', isAuthenticated, async (req, res) => {
       'INSERT INTO "UserContact" (userid, contactid) VALUES ($1, $2)',
       [userId, newContact.id]
     );
+    console.log("WE HITTING ADD CONTACT PART FIVE")
 
     res.status(201).json(newContact);
   } catch (error) {

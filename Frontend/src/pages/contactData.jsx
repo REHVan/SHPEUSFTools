@@ -70,6 +70,7 @@ function ContactData() {
     
     e.preventDefault();
     try {
+      console.log(UID)
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}add_contact?uid=${UID}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
