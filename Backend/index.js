@@ -4,6 +4,8 @@ import admin from 'firebase-admin';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import pg from 'pg';
+import multer from 'multer';
+import nodemailer from 'nodemailer';
 
 dotenv.config();
 
@@ -164,87 +166,15 @@ db.connect();
 //   },
 // }));
 
-// const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage() });
 
 // app.get('/', (req, res) => {
 //   res.sendFile(__dirname + '/client/public/index.html');
 // });
 
 
-// app.get('/ping', (req, res) => {
-//   res.json({ message: 'pong', origin: req.headers.origin });
-// });
 
-// app.post('/sessionLogin', async (req, res) => {
-//   const { idToken } = req.body;
-//   console.log("SESSIONLOGIN");
-//   console.log(idToken);
 
-//   try {
-//     const decodedToken = await admin.auth().verifyIdToken(idToken);
-//     const uid = decodedToken.uid;
-//     console.log("Decoded UID:", uid);
-
-//     req.session.userId = uid;
-//     req.session.save((err) => {
-//       if (err) {
-//         console.error("❌ SESSION SAVE ERROR:", err);
-//         return res.status(500).json({ message: 'Session failed to save', error: err.message });
-//       }
-    
-//       res.cookie('myCookie', 'cookieValue', {
-//         maxAge: 900000,
-//         httpOnly: true,
-//         sameSite: 'None',
-//         secure: true,
-//       });
-    
-//       console.log("✅ Session saved for:", req.session.userId);
-//       res.status(200).json({ message: 'Session established' });    
-//     });
-//   } catch (err) {
-//     console.error('Failed to verify token:', err);
-//     res.status(401).json({ error: 'Invalid or expired token' });
-//   }
-// });
-
-// app.post('/login', async (req, res) => {
-//   const { emailLogin, passwordLogin } = req.body;
-//   try {
-//     const userCredential = await signInWithEmailAndPassword(auth, emailLogin, passwordLogin);
-//     req.session.userId = userCredential.user.uid; // Store user ID in session
-//     req.session.save(() => {
-//       res.status(200).json({ redirectTo: `${FRONTEND_URL}/external` });
-//     });
-//     } catch (error) {
-//     res.status(401).json({ message: 'Authentication failed', error: error.message });
-//   }
-// });
-
-// app.get('/debug-session', (req, res) => {
-//   console.log('SESSION CONTENTS:', req.session);
-//   res.json({ userId: req.session.userId || null });
-// });
-
-// app.post('/register', async (req, res) => {
-//   const { email, password } = req.body;
-//   try {
-//     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-//     const firebaseId = userCredential.user.uid;
-//     req.session.userId = firebaseId;
-
-//     await db.query(
-//       'INSERT INTO "User" ("firebaseid", "email") VALUES ($1, $2)',
-//       [firebaseId, email]
-//     );
-
-//     req.session.save(() => {
-//       res.status(200).json({ redirectTo: `${FRONTEND_URL}/external` });
-//     });
-//     } catch (error) {
-//     res.status(500).json({ message: 'Registration failed', error: error.message });
-//   }
-// });
 
 //TODO: Fix authentication
 const isAuthenticated = (req, res, next) => {
@@ -260,97 +190,95 @@ const isAuthenticated = (req, res, next) => {
 //   res.json({ userId: req.session.userId });
 // });
 
-// app.post('/send_email_external', upload.single('attachment'), async (req, res) => {
-//   const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail } = req.body;
-//   const firebaseId = req.body.uid;
+app.post('/send_email_external', upload.single('attachment'), async (req, res) => {
+  const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail } = req.body;
+  const firebaseId = req.body.uid;
 
-//   try {
-//     const userResult = await db.query(
-//       'SELECT id, email FROM "User" WHERE "firebaseid" = $1',
-//       [firebaseId]
-//     );
+  try {
+    const userResult = await db.query(
+      'SELECT id, email FROM "User" WHERE "firebaseid" = $1',
+      [firebaseId]
+    );
 
-//     const user = userResult.rows[0];
-//     if (!user) return res.status(404).json({ message: 'User not found' });
+    const user = userResult.rows[0];
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-//     const userEmail = user.email;
+    const userEmail = user.email;
 
-//     const transporter = nodemailer.createTransport({
-//       service: 'gmail',
-//       auth: {
-//         user: userEmail,
-//         pass: googlePassword
-//       }
-//     });
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: userEmail,
+        pass: googlePassword
+      }
+    });
     
-//     const emailResults = [];
-//     let delayInMs = 0;
+    const emailResults = [];
+    let delayInMs = 0;
 
-//     const attachmentBuffer = req.file ? req.file.buffer : null;
-//     const attachmentName = req.file ? req.file.originalname : null;
-//     const selectedContacts = JSON.parse(req.body.selectedContacts);
-//     for (let i = 0; i < selectedContacts.length; i++) {
-//       const contactId = selectedContacts[i];
+    const attachmentBuffer = req.file ? req.file.buffer : null;
+    const attachmentName = req.file ? req.file.originalname : null;
+    const selectedContacts = JSON.parse(req.body.selectedContacts);
+    for (let i = 0; i < selectedContacts.length; i++) {
+      const contactId = selectedContacts[i];
 
-//       const contactResult = await db.query(
-//         'SELECT name, email, company, position, notes FROM "Contacts" WHERE id = $1',
-//         [contactId]
-//       );
-//       const contact = contactResult.rows[0];
-//       if (!contact) {
-//         console.warn(`No contact found for ID ${contactId}`);
-//         continue;
-//       }
+      const contactResult = await db.query(
+        'SELECT name, email, company, position, notes FROM "Contacts" WHERE id = $1',
+        [contactId]
+      );
+      const contact = contactResult.rows[0];
+      if (!contact) {
+        console.warn(`No contact found for ID ${contactId}`);
+        continue;
+      }
 
-//       const personalizedMessage = messageEmail
-//         .replace(/\[ContactName\]/g, contact.name)
-//         .replace(/\[CompanyName\]/g, contact.company);
+      const personalizedMessage = messageEmail
+        .replace(/\[ContactName\]/g, contact.name)
+        .replace(/\[CompanyName\]/g, contact.company);
 
-//       const personalizedSubject = subjectEmail
-//         .replace(/\[ContactName\]/g, contact.name)
-//         .replace(/\[CompanyName\]/g, contact.company);
+      const personalizedSubject = subjectEmail
+        .replace(/\[ContactName\]/g, contact.name)
+        .replace(/\[CompanyName\]/g, contact.company);
 
-//       const mailOptions = {
-//         from: fromEmail,
-//         to: contact.email,
-//         cc: ccEmail,
-//         subject: personalizedSubject,
-//         html: personalizedMessage,
-//         attachments: attachmentBuffer ? [{
-//           filename: attachmentName,
-//           content: attachmentBuffer
-//         }] : []
-//       };
+      const mailOptions = {
+        from: fromEmail,
+        to: contact.email,
+        cc: ccEmail,
+        subject: personalizedSubject,
+        html: personalizedMessage,
+        attachments: attachmentBuffer ? [{
+          filename: attachmentName,
+          content: attachmentBuffer
+        }] : []
+      };
 
-//       const batchIndex = Math.floor(i / 30);
-//       const baseHourDelay = batchIndex * 60 * 60 * 1000;
-//       const randomDelay = Math.floor(Math.random() * 20000) + 20000;
-//       delayInMs = baseHourDelay + i * randomDelay;
+      const batchIndex = Math.floor(i / 30);
+      const baseHourDelay = batchIndex * 60 * 60 * 1000;
+      const randomDelay = Math.floor(Math.random() * 20000) + 20000;
+      delayInMs = baseHourDelay + i * randomDelay;
 
-//       setTimeout(async () => {
-//         try {
-//           await transporter.sendMail(mailOptions);
-//           console.log(`Email sent to ${contact.email}`);
-//           emailResults.push({ email: contact.email, status: 'sent' });
-//         } catch (error) {
-//           console.error(`Error sending email to ${contact.email}:`, error);
-//           emailResults.push({ email: contact.email, status: 'failed', error: error.message });
-//         }
-//       }, delayInMs);
-//     }
+      setTimeout(async () => {
+        try {
+          await transporter.sendMail(mailOptions);
+          console.log(`Email sent to ${contact.email}`);
+          emailResults.push({ email: contact.email, status: 'sent' });
+        } catch (error) {
+          console.error(`Error sending email to ${contact.email}:`, error);
+          emailResults.push({ email: contact.email, status: 'failed', error: error.message });
+        }
+      }, delayInMs);
+    }
 
-//     res.json({
-//       message: 'Emails are being scheduled and will be sent over time.',
-//       totalScheduled: selectedContacts.length,
-//     });
+    res.json({
+      message: 'Emails are being scheduled and will be sent over time.',
+      totalScheduled: selectedContacts.length,
+    });
 
-//   } catch (error) {
-//     console.error('Error sending emails:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
-
-
+  } catch (error) {
+    console.error('Error sending emails:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 
@@ -361,95 +289,98 @@ const isAuthenticated = (req, res, next) => {
 
 
 
-// app.post('/schedule_email_external', upload.single('attachment'), async (req, res) => {
-//   const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail, selectedContacts, scheduledStartTime } = req.body;
-//   const startTime = scheduledStartTime ? new Date(scheduledStartTime).getTime() : Date.now();
-//   const firebaseId = req.body.uid;
 
-//   try {
-//     const userResult = await db.query(
-//       'SELECT id FROM "User" WHERE "firebaseid" = $1',
-//       [firebaseId]
-//     );
 
-//     const user = userResult.rows[0];
-//     if (!user) {
-//       return res.status(404).json({ message: 'User not found' });
-//     }
+app.post('/schedule_email_external', upload.single('attachment'), async (req, res) => {
+  const { googlePassword, fromEmail, ccEmail, subjectEmail, messageEmail, scheduledStartTime } = req.body;
+  const startTime = scheduledStartTime ? new Date(scheduledStartTime).getTime() : Date.now();
+  const firebaseId = req.body.uid;
+  const selectedContacts = JSON.parse(req.body.selectedContacts);
 
-//     const userEmail = user.email;
+  try {
+    const userResult = await db.query(
+      'SELECT id FROM "User" WHERE "firebaseid" = $1',
+      [firebaseId]
+    );
 
-//     const transporter = nodemailer.createTransport({
-//       service: 'gmail',
-//       auth: {
-//         user: userEmail,
-//         pass: googlePassword
-//       }
-//     });
+    const user = userResult.rows[0];
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-//     const emailResults = [];
+    const userEmail = user.email;
 
-//     const attachmentBuffer = req.file ? req.file.buffer : null;
-//     const attachmentName = req.file ? req.file.originalname : null;
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: userEmail,
+        pass: googlePassword
+      }
+    });
 
-//     let delayInMs = 0;
+    const emailResults = [];
 
-//     for (let i = 0; i < selectedContacts.length; i++) {
-//       const contactId = selectedContacts[i];
-//       const contactResult = await db.query(
-//         'SELECT name, email, company, position, notes FROM "Contacts" WHERE id = $1',
-//         [contactId]
-//       );
-//       const contact = contactResult.rows[0];
+    const attachmentBuffer = req.file ? req.file.buffer : null;
+    const attachmentName = req.file ? req.file.originalname : null;
 
-//       if (!contact) {
-//         console.warn(`No contact found for ID ${contactId}`);
-//         continue;
-//       }
+    let delayInMs = 0;
 
-//       const personalizedMessage = messageEmail
-//         .replace(/\[ContactName\]/g, contact.name)
-//         .replace(/\[CompanyName\]/g, contact.company);
+    for (let i = 0; i < selectedContacts.length; i++) {
+      const contactId = selectedContacts[i];
+      const contactResult = await db.query(
+        'SELECT name, email, company, position, notes FROM "Contacts" WHERE id = $1',
+        [contactId]
+      );
+      const contact = contactResult.rows[0];
 
-//       const personalizedSubject = subjectEmail
-//         .replace(/\[ContactName\]/g, contact.name)
-//         .replace(/\[CompanyName\]/g, contact.company);
+      if (!contact) {
+        console.warn(`No contact found for ID ${contactId}`);
+        continue;
+      }
 
-//       const mailOptions = {
-//         from: fromEmail,
-//         to: contact.email,
-//         cc: ccEmail,
-//         subject: personalizedSubject,
-//         html: personalizedMessage,
-//         attachments: attachmentBuffer ? [{
-//           filename: attachmentName,
-//           content: attachmentBuffer
-//         }] : []
-//       };
+      const personalizedMessage = messageEmail
+        .replace(/\[ContactName\]/g, contact.name)
+        .replace(/\[CompanyName\]/g, contact.company);
 
-//       const batchIndex = Math.floor(i / 30); // 30 emails per hour
-//       const baseHourDelay = batchIndex * 60 * 60 * 1000;
-//       const randomDelay = Math.floor(Math.random() * 20000) + 20000; // 20–40s
-//       delayInMs = startTime - Date.now() + baseHourDelay + i * randomDelay;
+      const personalizedSubject = subjectEmail
+        .replace(/\[ContactName\]/g, contact.name)
+        .replace(/\[CompanyName\]/g, contact.company);
 
-//       setTimeout(async () => {
-//         try {
-//           await transporter.sendMail(mailOptions);
-//           console.log(`Scheduled email sent to ${contact.email}`);
-//           emailResults.push({ email: contact.email, status: 'sent' });
-//         } catch (error) {
-//           console.error(`Error sending email to ${contact.email}:`, error);
-//           emailResults.push({ email: contact.email, status: 'failed', error: error.message });
-//         }
-//       }, delayInMs);
-//     }
+      const mailOptions = {
+        from: fromEmail,
+        to: contact.email,
+        cc: ccEmail,
+        subject: personalizedSubject,
+        html: personalizedMessage,
+        attachments: attachmentBuffer ? [{
+          filename: attachmentName,
+          content: attachmentBuffer
+        }] : []
+      };
 
-//     res.json({ message: 'Scheduled emails to be sent over time.', totalScheduled: selectedContacts.length });
-//   } catch (error) {
-//     console.error('Error scheduling emails:', error);
-//     res.status(500).send('Internal Server Error');
-//   }
-// });
+      const batchIndex = Math.floor(i / 30); // 30 emails per hour
+      const baseHourDelay = batchIndex * 60 * 60 * 1000;
+      const randomDelay = Math.floor(Math.random() * 20000) + 20000; // 20–40s
+      delayInMs = startTime - Date.now() + baseHourDelay + i * randomDelay;
+
+      setTimeout(async () => {
+        try {
+          await transporter.sendMail(mailOptions);
+          console.log(`Scheduled email sent to ${contact.email}`);
+          emailResults.push({ email: contact.email, status: 'sent' });
+        } catch (error) {
+          console.error(`Error sending email to ${contact.email}:`, error);
+          emailResults.push({ email: contact.email, status: 'failed', error: error.message });
+        }
+      }, delayInMs);
+    }
+
+    res.json({ message: 'Scheduled emails to be sent over time.', totalScheduled: selectedContacts.length });
+  } catch (error) {
+    console.error('Error scheduling emails:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 // /* <----------------------EMAIL CRUD-------------------------------------->*/
