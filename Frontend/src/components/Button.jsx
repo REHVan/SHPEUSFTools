@@ -1,3 +1,5 @@
+import React from 'react';
+
 function Button({ type, children, className = '' }) {
   return (
     <button type={type} className={`btn ${className}`}>
@@ -5,3 +7,5 @@ function Button({ type, children, className = '' }) {
     </button>
   );
 }
+
+export default Button;
