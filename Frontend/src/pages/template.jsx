@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import AdminNavbar from '../components/AdminNavbar';
-import UserNavBar from '../components/UserNavBar';
+import AdminNavbar from '../components/AdminNavbar'; // assuming AdminNavbar is used for admins
+import UserNavBar from '../components/UserNavBar'; // assuming UserNavBar for normal users
 import { useNavigate } from 'react-router-dom';
 
 function Template() {
   const [templateName, setTemplateName] = useState('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
-  
   const [templates, setTemplates] = useState([]);
   const [editingTemplateId, setEditingTemplateId] = useState(null);
   const navigate = useNavigate();
@@ -19,20 +18,17 @@ function Template() {
     
       // Check if the key starts with 'firebase:authUser:'
       if (key.startsWith('firebase:authUser:')) {
-        // Get the user data stored under this key
         const firebaseUser = sessionStorage.getItem(key);
     
-        // Parse the JSON and extract the UID
         if (firebaseUser) {
           const parsedUser = JSON.parse(firebaseUser);
           const uid = parsedUser.uid; 
-          UID =uid;
-          break; // Exit loop after finding the correct key
+          UID = uid;
+          break;
         }
       }
     }
     
-
     const fetchTemplates = async () => {
       try {
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}get_email_templates?uid=${UID}`);
@@ -54,19 +50,16 @@ function Template() {
     
       // Check if the key starts with 'firebase:authUser:'
       if (key.startsWith('firebase:authUser:')) {
-        // Get the user data stored under this key
         const firebaseUser = sessionStorage.getItem(key);
     
-        // Parse the JSON and extract the UID
         if (firebaseUser) {
           const parsedUser = JSON.parse(firebaseUser);
           const uid = parsedUser.uid; 
-          UID =uid;
-          break; // Exit loop after finding the correct key
+          UID = uid;
+          break;
         }
       }
-    }    
-      
+    }
 
     const endpoint = editingTemplateId ? `${process.env.REACT_APP_BACKEND_URL}update_template/${editingTemplateId}?uid=${UID}` : `${process.env.REACT_APP_BACKEND_URL}add_email_template?uid=${UID}`;
     const method = editingTemplateId ? 'PUT' : 'POST';
@@ -104,18 +97,14 @@ function Template() {
       for (let i = 0; i < sessionStorage.length; i++) {
         const key = sessionStorage.key(i);
       
-        // Check if the key starts with 'firebase:authUser:'
         if (key.startsWith('firebase:authUser:')) {
-          // Get the user data stored under this key
           const firebaseUser = sessionStorage.getItem(key);
       
-          // Parse the JSON and extract the UID
           if (firebaseUser) {
             const parsedUser = JSON.parse(firebaseUser);
             const uid = parsedUser.uid; 
-            UID =uid;
-            break; // Exit loo
-            // p after finding the correct key
+            UID = uid;
+            break;
           }
         }
       }
@@ -130,9 +119,9 @@ function Template() {
   };
 
   return (
-    <>
+    <div className="flex">
       <UserNavBar />
-      <div className="container mx-auto p-6 max-w-4xl">
+      <div className="flex-1 p-6">
         <h2 className="text-3xl font-bold text-center mb-6">Manage Email Templates</h2>
         <form onSubmit={handleAddOrUpdateTemplate} className="bg-white shadow-md rounded-lg p-6 space-y-4">
           <div>
@@ -181,7 +170,7 @@ function Template() {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
