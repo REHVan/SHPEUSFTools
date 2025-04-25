@@ -8,4 +8,6 @@ function Button({ type, label, className = '' }) {
   );
 }
 
+//Please deploy
+
 export default Button;
