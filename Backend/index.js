@@ -299,7 +299,7 @@ app.post('/schedule_email_external', upload.single('attachment'), async (req, re
 
   try {
     const userResult = await db.query(
-      'SELECT id FROM "User" WHERE "firebaseid" = $1',
+      'SELECT id, email FROM "User" WHERE "firebaseid" = $1',
       [firebaseId]
     );
 
