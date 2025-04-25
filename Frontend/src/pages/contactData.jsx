@@ -21,22 +21,16 @@ function ContactData() {
   const navigate = useNavigate();
 
   useEffect(() => {
-
     var UID = 0;
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
-    
-      // Check if the key starts with 'firebase:authUser:'
       if (key.startsWith('firebase:authUser:')) {
-        // Get the user data stored under this key
         const firebaseUser = sessionStorage.getItem(key);
-    
-        // Parse the JSON and extract the UID
         if (firebaseUser) {
           const parsedUser = JSON.parse(firebaseUser);
           const uid = parsedUser.uid; 
-          UID =uid;
-          break; // Exit loop after finding the correct key
+          UID = uid;
+          break; 
         }
       }
     }
@@ -48,29 +42,22 @@ function ContactData() {
   }, []);
 
   const handleAddContact = async (e) => {
-
     var UID = 0;
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
-    
-      // Check if the key starts with 'firebase:authUser:'
       if (key.startsWith('firebase:authUser:')) {
-        // Get the user data stored under this key
         const firebaseUser = sessionStorage.getItem(key);
-    
-        // Parse the JSON and extract the UID
         if (firebaseUser) {
           const parsedUser = JSON.parse(firebaseUser);
           const uid = parsedUser.uid; 
-          UID =uid;
-          break; // Exit loop after finding the correct key
+          UID = uid;
+          break;
         }
       }
     }
     
     e.preventDefault();
     try {
-      console.log(UID)
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}add_contact?uid=${UID}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -105,7 +92,6 @@ function ContactData() {
     });
   };
 
-  console.log("TESITNG");
   const handleBlur = async () => {
     if (currentContactId) {
       try {
@@ -124,7 +110,6 @@ function ContactData() {
               contact.id === currentContactId ? updatedContact : contact
             )
           );
-          // Clear the form and reset editing state
           setNewContact({
             name: '',
             email: '',
@@ -147,18 +132,13 @@ function ContactData() {
     var UID = 0;
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
-    
-      // Check if the key starts with 'firebase:authUser:'
       if (key.startsWith('firebase:authUser:')) {
-        // Get the user data stored under this key
         const firebaseUser = sessionStorage.getItem(key);
-    
-        // Parse the JSON and extract the UID
         if (firebaseUser) {
           const parsedUser = JSON.parse(firebaseUser);
           const uid = parsedUser.uid; 
-          UID =uid;
-          break; // Exit loop after finding the correct key
+          UID = uid;
+          break;
         }
       }
     }
@@ -184,27 +164,21 @@ function ContactData() {
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      // Expected keys: company_name, contact_name, email_address, position, notes
       try {
         var UID = 0;
         for (let i = 0; i < sessionStorage.length; i++) {
           const key = sessionStorage.key(i);
-        
-          // Check if the key starts with 'firebase:authUser:'
           if (key.startsWith('firebase:authUser:')) {
-            // Get the user data stored under this key
             const firebaseUser = sessionStorage.getItem(key);
-        
-            // Parse the JSON and extract the UID
             if (firebaseUser) {
               const parsedUser = JSON.parse(firebaseUser);
               const uid = parsedUser.uid; 
-              UID =uid;
-              break; // Exit loop after finding the correct key
+              UID = uid;
+              break;
             }
           }
         }
-        
+
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}upload_contacts?uid=${UID}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -231,15 +205,15 @@ function ContactData() {
   return (
     <>
       <UserNavBar />
-      <div className="max-w-3xl mx-auto p-4">
+      <div className="max-w-3xl mx-auto p-6">
         <input
           type="file"
           accept=".xlsx, .xls"
           onChange={handleFileUpload}
-          className="mb-4"
+          className="mb-6 p-2 border rounded-md bg-gray-50"
         />
 
-        <form onSubmit={handleAddContact} className="bg-white p-4 rounded-lg shadow-md">
+        <form onSubmit={handleAddContact} className="bg-white p-6 rounded-lg shadow-md">
           <FormInputDisplay
             label="Contact Name"
             id="Name"
@@ -279,16 +253,16 @@ function ContactData() {
             onChange={(e) => setNewContact({ ...newContact, notes: e.target.value })}
           />
 
-          <button className="mt-4 w-[70%] rounded-lg mx-auto block" type="submit">
+          <button className="mt-4 w-[70%] rounded-lg mx-auto block bg-blue-600 text-white py-2 hover:bg-blue-700" type="submit">
             Add Contact
           </button>
         </form>
 
-        <table className="w-full bg-white mt-4 rounded-lg shadow-md">
+        <table className="w-full bg-white mt-6 rounded-lg shadow-md">
           <thead>
             <tr>
-            <th className="py-2 px-4 border">Contact Name</th>
-            <th className="py-2 px-4 border">Email Address</th>
+              <th className="py-2 px-4 border">Contact Name</th>
+              <th className="py-2 px-4 border">Email Address</th>
               <th className="py-2 px-4 border">Company Name</th>
               <th className="py-2 px-4 border">Position</th>
               <th className="py-2 px-4 border">Notes</th>
@@ -300,46 +274,46 @@ function ContactData() {
             {currentContacts.map((contact) => (
               <tr key={contact.id}>
                 <td className="py-2 px-4 border">
-                {isEditing && currentContactId === contact.id ? (
-                  <input
-                    type="text"
-                    value={newContact.name}
-                    onChange={(e) =>
-                      setNewContact({ ...newContact, name: e.target.value })
-                    }
-                    onBlur={handleBlur} // Save on blur
-                  />
-                ) : (
-                  contact.name
-                )}
+                  {isEditing && currentContactId === contact.id ? (
+                    <input
+                      type="text"
+                      value={newContact.name}
+                      onChange={(e) =>
+                        setNewContact({ ...newContact, name: e.target.value })
+                      }
+                      onBlur={handleBlur} 
+                    />
+                  ) : (
+                    contact.name
+                  )}
                 </td>
                 <td className="py-2 px-4 border">
-                {isEditing && currentContactId === contact.id ? (
-                  <input
-                    type="text"
-                    value={newContact.email}
-                    onChange={(e) =>
-                      setNewContact({ ...newContact, email: e.target.value })
-                    }
-                    onBlur={handleBlur} // Save on blur
-                  />
-                ) : (
-                  contact.email
-                )}
+                  {isEditing && currentContactId === contact.id ? (
+                    <input
+                      type="text"
+                      value={newContact.email}
+                      onChange={(e) =>
+                        setNewContact({ ...newContact, email: e.target.value })
+                      }
+                      onBlur={handleBlur} 
+                    />
+                  ) : (
+                    contact.email
+                  )}
                 </td>
                 <td className="py-2 px-4 border">
-                {isEditing && currentContactId === contact.id ? (
-                  <input
-                    type="text"
-                    value={newContact.company}
-                    onChange={(e) =>
-                      setNewContact({ ...newContact, company: e.target.value })
-                    }
-                    onBlur={handleBlur} 
-                  />
-                ) : (
-                  contact.company
-                )}
+                  {isEditing && currentContactId === contact.id ? (
+                    <input
+                      type="text"
+                      value={newContact.company}
+                      onChange={(e) =>
+                        setNewContact({ ...newContact, company: e.target.value })
+                      }
+                      onBlur={handleBlur}
+                    />
+                  ) : (
+                    contact.company
+                  )}
                 </td>
                 <td className="py-2 px-4 border">
                   {isEditing && currentContactId === contact.id ? (
@@ -349,37 +323,40 @@ function ContactData() {
                       onChange={(e) =>
                         setNewContact({ ...newContact, position: e.target.value })
                       }
-                      onBlur={handleBlur} 
+                      onBlur={handleBlur}
                     />
                   ) : (
                     contact.position
                   )}
                 </td>
                 <td className="py-2 px-4 border">
-                {isEditing && currentContactId === contact.id ? (
+                  {isEditing && currentContactId === contact.id ? (
                     <input
                       type="text"
                       value={newContact.notes}
                       onChange={(e) =>
                         setNewContact({ ...newContact, notes: e.target.value })
                       }
-                      onBlur={handleBlur} 
+                      onBlur={handleBlur}
                     />
                   ) : (
                     contact.notes
                   )}
                 </td>
                 <td className="py-2 px-4 border">
-                <button
-                  className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700"
-                  onClick={() => handleEdit(contact)}
-                  disabled={isEditing} // Disable if already editing
-                >
-                  Edit
-                </button>
+                  <button
+                    className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700"
+                    onClick={() => handleEdit(contact)}
+                    disabled={isEditing}
+                  >
+                    Edit
+                  </button>
                 </td>
                 <td className="py-2 px-4 border">
-                  <button className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-700" onClick={() => handleDelete(contact.id)}>
+                  <button
+                    className="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-700"
+                    onClick={() => handleDelete(contact.id)}
+                  >
                     Delete
                   </button>
                 </td>
