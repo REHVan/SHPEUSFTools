@@ -205,7 +205,7 @@ function ContactData() {
   return (
     <div className="flex">
       <UserNavBar />
-      <div className="flex-1 p-6 ml-64">
+      <div className="flex-1 p-6">
         <input
           type="file"
           accept=".xlsx, .xls"
