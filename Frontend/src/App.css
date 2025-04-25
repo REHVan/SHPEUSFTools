@@ -3,99 +3,120 @@
 @tailwind utilities;
 
 body {
-  @apply font-sans m-0 p-0 box-border;
+  @apply font-sans m-0 p-0 box-border bg-gray-50;
+}
+
+/* General Form Styling */
+.form-container {
+  max-width: 900px; /* Wider for more spacious layout */
+  margin: 0 auto; /* Center the container */
+  padding: 24px; /* Padding for better spacing */
+  border-radius: 12px; /* More rounded corners */
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
 }
 
 /* Form labels */
 label {
-  @apply block mb-2 font-bold;
+  @apply block mb-2 text-lg font-medium text-gray-700;
 }
 
-/* Form inputs */
+/* Form Inputs */
 input[type="text"],
 input[type="email"],
 input[type="password"],
 select {
-  @apply w-full p-2 mb-3 border border-gray-300 rounded;
+  @apply w-full p-3 mb-4 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500;
 }
 
-/* Buttons */
+/* Button Styles */
 button {
-  @apply bg-red-600 text-white border-none px-4 py-2 text-lg rounded cursor-pointer;
+  @apply bg-blue-600 text-white border-none px-6 py-3 rounded-lg text-lg hover:bg-blue-700 transition-colors duration-300;
 }
-
-
 
 button:hover {
-  @apply bg-red-700;
+  @apply bg-blue-700;
 }
 
 /* Table Styles */
 table {
-  @apply w-full border-collapse my-5;
+  @apply w-full border-collapse my-6;
 }
 
 th, td {
-  @apply border border-gray-300 p-2 text-left;
+  @apply border border-gray-300 p-3 text-left text-sm font-medium text-gray-700;
 }
 
 th {
-  @apply bg-gray-100;
+  @apply bg-blue-50 text-blue-700;
 }
 
 tr:nth-child(even) {
-  @apply bg-gray-50;
+  @apply bg-gray-100;
+}
+
+tr:hover {
+  @apply bg-gray-200; /* Hover effect */
+}
+
+/* Pagination Styling */
+.pagination-controls button {
+  @apply px-6 py-2 mx-2 rounded-lg text-sm font-semibold text-gray-700 bg-gray-200 hover:bg-blue-500 hover:text-white transition-colors;
+}
+
+.pagination-controls button.active {
+  @apply bg-blue-600 text-white;
 }
 
 /* Responsive Design */
-@media (max-width: 600px) {
-  form {
-    @apply p-4;
+@media (max-width: 768px) {
+  .form-container {
+    padding: 20px;
   }
-  
+
   input[type="text"],
   input[type="email"],
   input[type="password"],
   select {
     @apply text-sm;
   }
-  
+
   button {
-    @apply text-sm px-3 py-2;
+    @apply text-sm px-4 py-2;
   }
-  
+
   table {
     @apply text-sm;
   }
 }
-/* Optional CSS for specific button styles */
 
-
-.form-container {
-  max-width: 800px; /* Limit the maximum width */
-  margin: 0 auto; /* Center the container */
-  padding: 20px; /* Add padding */
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  background-color: #fff; /* White background */
+/* Custom Switch for Send Mode */
+.switch-toggle {
+  @apply relative w-16 h-8 rounded-full transition-all duration-300;
 }
 
+.switch-toggle .circle {
+  @apply absolute w-6 h-6 bg-white rounded-full top-1 left-1 transition-transform duration-300;
+}
+
+.switch-toggle.active {
+  @apply bg-green-500;
+}
+
+.switch-toggle.active .circle {
+  @apply translate-x-8;
+}
+
+/* Feedback Message Styling */
 .feedback-message {
-  margin-top: 10px;
-  color: green; /* Change color as needed */
+  @apply mt-4 text-center text-green-600 font-semibold;
 }
 
-select {
-  width: 100%; /* Full width for select dropdown */
-  padding: 8px; /* Padding for comfort */
-  margin-top: 5px; /* Space above */
-  margin-bottom: 20px; /* Space below */
-  border-radius: 4px; /* Rounded corners */
-  border: 1px solid #ccc; /* Light border */
+/* Additional Custom Styles for Optional Elements */
+input[type="file"] {
+  @apply bg-gray-50 text-sm py-2 px-4 rounded-md border border-gray-300;
 }
 
-
-button {
-  display: inline-block; /* Make button inline-block */
-  margin-top: 20px; /* Space above button */
+input[type="datetime-local"] {
+  @apply bg-gray-50 border border-gray-300 rounded-lg p-2;
 }
