@@ -203,9 +203,9 @@ function ContactData() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <>
+    <div className="flex">
       <UserNavBar />
-      <div className="max-w-3xl mx-auto p-6">
+      <div className="flex-1 p-6 ml-64">
         <input
           type="file"
           accept=".xlsx, .xls"
@@ -273,7 +273,7 @@ function ContactData() {
           <tbody>
             {currentContacts.map((contact) => (
               <tr key={contact.id}>
-                <td className="py-2 px-4 border">
+                 <td className="py-2 px-4 border">
                   {isEditing && currentContactId === contact.id ? (
                     <input
                       type="text"
@@ -377,7 +377,7 @@ function ContactData() {
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
