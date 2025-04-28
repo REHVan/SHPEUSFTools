@@ -1,57 +1,63 @@
-UniSponsor
+# UniSponsor
+
 UniSponsor is a web-based software solution designed to automate and optimize mass email outreach for student organizations. Built to handle large volumes of emails, it streamlines the process of sending personalized, professional emails at scale, making it ideal for any organization looking to reach out to potential sponsors, partners, or other stakeholders.
 
-Key Features
-Personalized HTML Email Templates: Easily create custom email templates that can dynamically fill in recipient names, company names, and other fields.
+---
 
-Import Contacts from Excel: Seamlessly upload contact lists from Excel to populate your email recipient list, saving time and reducing manual data entry.
+## Key Features
 
-Manual Contact Management: Add and edit contacts manually for precise control over your outreach efforts.
+- **Personalized HTML Email Templates**: Easily create custom email templates that can dynamically fill in recipient names, company names, and other fields.
+- **Import Contacts from Excel**: Seamlessly upload contact lists from Excel to populate your email recipient list, saving time and reducing manual data entry.
+- **Manual Contact Management**: Add and edit contacts manually for precise control over your outreach efforts.
+- **Mass Emailing with Attachments**: Send bulk emails with attachments, including sponsorship packages or promotional material.
+- **Email Scheduling & Spacing**: Automatically space out email sends to avoid account locks, ensuring smooth, uninterrupted outreach.
 
-Mass Emailing with Attachments: Send bulk emails with attachments, including sponsorship packages or promotional material.
+---
 
-Email Scheduling & Spacing: Automatically space out email sends to avoid account locks, ensuring smooth, uninterrupted outreach.
+## How It Works
 
-How It Works
-Create a Template: Design your email template, using placeholders for personalized fields like names and companies.
+1. **Create a Template**: Design your email template, using placeholders for personalized fields like names and companies.
+2. **Import Contacts**: Upload your contact list from an Excel file, which will auto-fill the recipient fields in your template.
+3. **Send**: Press the send button and watch UniSponsor handle the distribution of personalized emails. Emails are spaced out to avoid triggering spam filters or account locks.
 
-Import Contacts: Upload your contact list from an Excel file, which will auto-fill the recipient fields in your template.
+---
 
-Send: Press the send button and watch UniSponsor handle the distribution of personalized emails. Emails are spaced out to avoid triggering spam filters or account locks.
+## Tech Stack
 
-Tech Stack
 UniSponsor is built using a modern stack of technologies that ensures scalability, performance, and ease of use:
 
-Frontend:
+- **Frontend**:  
+  - **React**: A powerful JavaScript library for building user interfaces, providing a dynamic, single-page application experience.
+  - **Tailwind CSS**: A utility-first CSS framework for building responsive and modern UI elements with minimal effort.
+  - **Vercel**: For frontend deployment, ensuring fast and reliable hosting with serverless functions.
 
-React: A powerful JavaScript library for building user interfaces, providing a dynamic, single-page application experience.
+- **Backend**:  
+  - **Node.js**: A JavaScript runtime environment to handle backend logic and API requests.
+  - **Express.js**: A minimalist web framework for Node.js to manage routing and server-side operations.
+  - **Firebase Authentication**: For handling secure user sign-ins and managing authentication.
+  - **PostgreSQL**: A robust, relational database for managing contact data, templates, and user information.
+  
+- **Email Delivery**:  
+  - **Nodemailer**: A module for Node.js to send emails easily, with support for attachments and custom email templates.
 
-Tailwind CSS: A utility-first CSS framework for building responsive and modern UI elements with minimal effort.
+---
 
-Vercel: For frontend deployment, ensuring fast and reliable hosting with serverless functions.
+## Demo
 
-Backend:
+Experience the tool in action through this demo:  
+[UniSponsor Demo](https://uni-sponsor.vercel.app/)
 
-Node.js: A JavaScript runtime environment to handle backend logic and API requests.
+---
 
-Express.js: A minimalist web framework for Node.js to manage routing and server-side operations.
+## Requirements
 
-Firebase Authentication: For handling secure user sign-ins and managing authentication.
+- Modern web browser (Chrome, Firefox, Safari, etc.)
+- Internet connection
 
-PostgreSQL: A robust, relational database for managing contact data, templates, and user information.
+---
 
-Email Delivery:
+## Feedback
 
-Nodemailer: A module for Node.js to send emails easily, with support for attachments and custom email templates.
+I’m open to feedback on how this software can be improved. Feel free to share your thoughts and suggestions for new features or improvements.
 
-Demo
-Experience the tool in action through this demo:
-UniSponsor Demo
-
-Requirements
-Modern web browser (Chrome, Firefox, Safari, etc.)
-
-Internet connection
-
-Feedback
-I’m open to feedback on how this software can be improved. Feel free to share your thoughts and suggestions for new features or improvements. If you have bugs or feedback please email rhernandezvantuyl@gmail.com.
+---
