@@ -139,6 +139,8 @@ function Template() {
           <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700">
             {editingTemplateId ? 'Update Template' : 'Save Template'}
           </button>
+          <h3>Warning: Convert templates to markup. The following key words will replace with correct contact data in email that send. [ContactName] [CompanyName]</h3>
+
         </form>
         <h2 className="text-2xl font-bold mt-8 mb-4">Existing Templates</h2>
         <div className="overflow-x-auto">

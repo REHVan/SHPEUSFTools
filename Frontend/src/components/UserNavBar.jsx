@@ -9,6 +9,7 @@ function UserNavBar() {
         <Link to="/external" className="text-white hover:bg-gray-700 px-4 py-2 rounded-lg w-full text-center">Send Email</Link>
         <Link to="/contactdata" className="text-white hover:bg-gray-700 px-4 py-2 rounded-lg w-full text-center">Contact Data</Link>
         <Link to="/template" className="text-white hover:bg-gray-700 px-4 py-2 rounded-lg w-full text-center">Email Template</Link>
+        <h3 className="text-white hover:bg-gray-700 px-4 py-2 rounded-lg w-full text-center">Support Email: rhernandezvantuyl@gmail.com</h3>
       </div>
     </nav>
   );

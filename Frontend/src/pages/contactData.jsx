@@ -205,8 +205,11 @@ function ContactData() {
   return (
     <div className="flex">
       <UserNavBar />
+      <label htmlFor="import" className="block mb-1 text-sm font-medium">Import Contact List (optional)</label>
+      <h3>Import excels must be in the format: name,	email,	company, position, notes</h3>
       <div className="flex-1 p-6">
         <input
+          id="import"
           type="file"
           accept=".xlsx, .xls"
           onChange={handleFileUpload}

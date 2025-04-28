@@ -244,6 +244,8 @@ function External() {
               <label htmlFor="attachment" className="block mb-1 text-sm font-medium">Attachment (optional)</label>
               <input type="file" id="attachment" onChange={e => setFile(e.target.files[0])} />
             </div>
+            <div className="mt-4 text-center text-green-600 font-medium"><h3>Warning: It’s recommended to send no more than 50 emails at a time, as I am still testing the functionality for sending batches larger than 50 emails. Thank you for your understanding!</h3></div>
+
 
             <button className="mt-4 w-[70%] rounded-lg mx-auto block" type="submit">Send Emails</button>
 
