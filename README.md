@@ -45,8 +45,8 @@ UniSponsor is built using a modern stack of technologies that ensures scalabilit
 ## Demo
 
 Experience the tool in action through this demo:  
-[UniSponsor Demo](https://uni-sponsor.vercel.app/)
-
+[UniSponsor Demo][(https://uni-sponsor.vercel.app/)](https://www.youtube.com/watch?v=B_KOFG0j9g8)
+Link to software: https://uni-sponsor.vercel.app/
 ---
 
 ## Requirements
