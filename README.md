@@ -15,7 +15,7 @@ UniSponsor is a web-based software solution designed to automate and optimize ma
 ---
 
 ## How It Works
-
+0.  **Create a Template**: It will walk you through how to use it.
 1. **Create a Template**: Design your email template, using placeholders for personalized fields like names and companies.
 2. **Import Contacts**: Upload your contact list from an Excel file, which will auto-fill the recipient fields in your template.
 3. **Send**: Press the send button and watch UniSponsor handle the distribution of personalized emails. Emails are spaced out to avoid triggering spam filters or account locks.
@@ -58,6 +58,6 @@ Experience the tool in action through this demo:
 
 ## Feedback
 
-I’m open to feedback on how this software can be improved. Feel free to share your thoughts and suggestions for new features or improvements.
+I’m open to feedback on how this software can be improved. Feel free to share your thoughts, bugs, and suggestions for new features. Support email: rhernandezvantuyl@gmail.com
 
 ---
